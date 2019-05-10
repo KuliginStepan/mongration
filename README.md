@@ -1,7 +1,7 @@
 [![CircleCI](https://circleci.com/gh/KuliginStepan/mongration/tree/master.svg?style=shield)](https://circleci.com/gh/KuliginStepan/mongration/tree/master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ffcf51506af84115ae91ab54cb437f08)](https://www.codacy.com/app/KuliginStepan/mongration?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KuliginStepan/mongration&amp;utm_campaign=Badge_Grade)
 [![codecov](https://codecov.io/gh/KuliginStepan/mongration/branch/master/graph/badge.svg)](https://codecov.io/gh/KuliginStepan/mongration)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.kuliginstepan/mongration/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.kuliginstepan/mongration)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.kuliginstepan/mongration.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.github.kuliginstepan%22%20AND%20a:%22mongration%22)
 [![Licence](https://img.shields.io/hexpm/l/plug.svg)](https://github.com/kuliginstepan/mongration/blob/master/LICENSE)
 
 # Mongration
@@ -12,6 +12,39 @@ MongoDB data migration tool for Spring Boot projects
 *   ChangeLogs are regular spring beans
 *   Support mongoDB transactions
 
+## Getting started
+### Add a dependency
+#### Maven
+```xml
+<dependency>
+  <groupId>com.github.kuliginstepan</groupId>
+  <artifactId>mongration</artifactId>
+  <version>version</version>
+</dependency>
+```
+#### Gradle
+`compile("com.github.kuliginstepan:mongration:version")`
+
+or 
+
+`implementation 'com.github.kuliginstepan:mongration:version'`
+### Configuration
+Mongration provide default configuration. You may change collection name where mongration will save executed changesets.
+To change it add property `mongration.changelogs-collection` with custom collection name. By default mongration will save
+executed changesets in collection named `mongration_changelogs` 
+### Creating first ChangeSet
+After adding a dependency you need to create Changelog class and annotate it with `@ChangeLog`
+```
+@ChangeLog
+public class Changelog {
+    
+    @ChangeSet(order = 1, id = "change1", author = "Stepan")
+    public void firstMigration(MongoTemplate template) {
+        ...
+    }
+}
+```
+ChangeSets will be executed on application startup.
 ## When are the migrations are executed
 Mongration provide `MongrationAutoConfiguration`, which configures `Mongration` bean after `MongoAutoConfiguration` and 
 before `MongoDataAutoConfiguration`. This means that while migrating, Mongo Data is not yet configured. It 
