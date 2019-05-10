@@ -52,7 +52,7 @@ If you have several instances of service, they will not start until one instance
 It allows inject dependencies in these classes (do not inject dependencies that depends on Mongo Data components, because
  they are not loaded when migrations executing).
 ### Ordering
-To order ChangeLog`s you may annotate it with `@Order`. Changelogs are sort with standard spring Order comparator.
+To order ChangeLog\`s you may annotate it with `@Order`. Changelogs are sort with standard spring Order comparator.
 ## @ChangeSet
 `@ChangeSet` is annotation to mark ChangeLog\`s method as migration. This method should have `MongoTemplate` as an argument.
 
