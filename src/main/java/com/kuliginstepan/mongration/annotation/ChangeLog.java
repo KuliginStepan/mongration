@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 import org.springframework.stereotype.Component;
 
 /**
- *  Annotation for class marking as changelog
+ * Annotation for class marking as changelog
  */
 
 @Target(ElementType.TYPE)

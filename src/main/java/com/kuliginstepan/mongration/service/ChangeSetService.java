@@ -5,9 +5,9 @@ import static com.kuliginstepan.mongration.entity.ChangeSetEntity.CHANGE_SET_ID_
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
-import com.kuliginstepan.mongration.entity.ChangeSetEntity;
-import com.kuliginstepan.mongration.configuration.MongrationProperties;
 import com.kuliginstepan.mongration.annotation.ChangeSet;
+import com.kuliginstepan.mongration.configuration.MongrationProperties;
+import com.kuliginstepan.mongration.entity.ChangeSetEntity;
 import com.mongodb.client.model.IndexOptions;
 import java.lang.reflect.Method;
 import java.time.Instant;

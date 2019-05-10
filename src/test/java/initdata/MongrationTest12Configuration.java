@@ -14,6 +14,7 @@ public class MongrationTest12Configuration {
 
     @PostConstruct
     public void init() {
-        client.getDatabase("skuligin_test").getCollection("mongration_changelogs").insertOne(new Document("_id", "LOCK"));
+        client.getDatabase("skuligin_test").getCollection("mongration_changelogs")
+            .insertOne(new Document("_id", "LOCK"));
     }
 }

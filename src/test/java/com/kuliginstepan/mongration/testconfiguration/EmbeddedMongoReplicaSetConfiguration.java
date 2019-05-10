@@ -21,10 +21,10 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 public class EmbeddedMongoReplicaSetConfiguration {
 
-    private static final byte[] IP4_LOOPBACK_ADDRESS = { 127, 0, 0, 1 };
+    private static final byte[] IP4_LOOPBACK_ADDRESS = {127, 0, 0, 1};
 
-    private static final byte[] IP6_LOOPBACK_ADDRESS = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 1 };
+    private static final byte[] IP6_LOOPBACK_ADDRESS = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 1};
 
     private final ApplicationContext context;
 
@@ -46,7 +46,7 @@ public class EmbeddedMongoReplicaSetConfiguration {
     }
 
     private static InetAddress getHost() throws UnknownHostException {
-            return InetAddress.getByAddress(Network.localhostIsIPv6()
-                ? IP6_LOOPBACK_ADDRESS : IP4_LOOPBACK_ADDRESS);
+        return InetAddress.getByAddress(Network.localhostIsIPv6()
+            ? IP6_LOOPBACK_ADDRESS : IP4_LOOPBACK_ADDRESS);
     }
 }

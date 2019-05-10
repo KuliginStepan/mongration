@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 public class SimpleChangeLog7 {
 
     @ChangeSet(order = 1, id = "change1", author = "Stepan")
-    public void migration(MongoTemplate template){
+    public void migration(MongoTemplate template) {
         template.findAll(Document.class, "entity").forEach(document -> {
             document.put("index", document.get("text"));
             template.save(document, "entity");

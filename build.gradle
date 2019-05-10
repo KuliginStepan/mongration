@@ -1,17 +1,17 @@
 plugins {
-	id "io.spring.dependency-management" version "1.0.6.RELEASE"
+    id "io.spring.dependency-management" version "1.0.6.RELEASE"
     id 'maven-publish'
     id 'io.codearte.nexus-staging' version '0.20.0'
-	id 'java'
+    id 'java'
     id 'signing'
 }
 
 apply plugin: 'jacoco'
 
 dependencyManagement {
-	imports {
-		mavenBom 'org.springframework.boot:spring-boot-starter-parent:2.1.4.RELEASE'
-	}
+    imports {
+        mavenBom 'org.springframework.boot:spring-boot-starter-parent:2.1.4.RELEASE'
+    }
 }
 group = 'com.github.kuliginstepan'
 version = '0.0.1'
@@ -21,22 +21,22 @@ def nexusUsername = System.getenv("NEXUS_USERNAME") == null ? "${NEXUS_USERNAME}
 def nexusPassword = System.getenv("NEXUS_PASSWORD") == null ? "${NEXUS_PASSWORD}" : System.getenv("NEXUS_PASSWORD")
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter:2.1.4.RELEASE'
-	implementation 'org.springframework.boot:spring-boot'
-	implementation 'org.springframework.boot:spring-boot-autoconfigure'
-	implementation 'org.springframework.data:spring-data-mongodb'
-	implementation 'org.projectlombok:lombok'
-    
-	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-	annotationProcessor 'org.projectlombok:lombok'
-	testAnnotationProcessor 'org.projectlombok:lombok'
-	
+    implementation 'org.springframework.boot:spring-boot-starter:2.1.4.RELEASE'
+    implementation 'org.springframework.boot:spring-boot'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.springframework.data:spring-data-mongodb'
+    implementation 'org.projectlombok:lombok'
+
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
+    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
 }
 
 nexusStaging {

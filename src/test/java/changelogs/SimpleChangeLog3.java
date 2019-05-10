@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 public class SimpleChangeLog3 {
 
     @ChangeSet(order = 1, id = "change1", author = "Stepan")
-    public void migration(MongoTemplate template){
+    public void migration(MongoTemplate template) {
         throw new RuntimeException("Exception while executing migration");
     }
 }

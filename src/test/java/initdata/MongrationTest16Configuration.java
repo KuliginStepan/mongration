@@ -16,6 +16,7 @@ public class MongrationTest16Configuration {
     @PostConstruct
     public void init() {
         client.getDatabase("skuligin_test").getCollection("mongration_changelogs")
-            .insertOne(new Document("changeSetId", "change2").append("changeLogClass", SimpleChangeLog16.class.getName()));
+            .insertOne(
+                new Document("changeSetId", "change2").append("changeLogClass", SimpleChangeLog16.class.getName()));
     }
 }

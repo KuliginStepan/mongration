@@ -12,7 +12,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 public class SimpleChangeLog9 {
 
     @ChangeSet(order = 1, id = "change1", author = "Stepan")
-    public void migration(MongoTemplate template, TransactionTemplate txTemplate){
+    public void migration(MongoTemplate template, TransactionTemplate txTemplate) {
         template.createCollection("entity");
         txTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -22,5 +22,5 @@ public class SimpleChangeLog9 {
                 template.save(new Document("index", "3").append("text", "3"), "entity");
             }
         });
-        }
+    }
 }

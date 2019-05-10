@@ -12,7 +12,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 public class SimpleChangeLog10 {
 
     @ChangeSet(order = 1, id = "change1", author = "Stepan")
-    public void migration(TransactionTemplate txTemplate, MongoTemplate template){
+    public void migration(TransactionTemplate txTemplate, MongoTemplate template) {
         template.createCollection("entity");
         txTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -22,10 +22,10 @@ public class SimpleChangeLog10 {
                 template.save(new Document("index", "3").append("text", "3"), "entity");
             }
         });
-        }
+    }
 
     @ChangeSet(order = 2, id = "change1", author = "Stepan")
-    public void migration1(TransactionTemplate txTemplate, MongoTemplate template){
+    public void migration1(TransactionTemplate txTemplate, MongoTemplate template) {
         txTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -35,5 +35,5 @@ public class SimpleChangeLog10 {
                 throw new RuntimeException();
             }
         });
-        }
+    }
 }

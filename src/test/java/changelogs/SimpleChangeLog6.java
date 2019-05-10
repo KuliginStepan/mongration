@@ -9,14 +9,14 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 public class SimpleChangeLog6 {
 
     @ChangeSet(order = 1, id = "change1", author = "Stepan")
-    public void migration(MongoTemplate template){
+    public void migration(MongoTemplate template) {
         template.save(new Document("index", "1").append("text", "1"), "entity");
         template.save(new Document("index", "2").append("text", "2"), "entity");
         template.save(new Document("index", "3").append("text", "3"), "entity");
     }
 
     @ChangeSet(order = 2, id = "change2", author = "Stepan")
-    public void migration1(MongoTemplate template){
+    public void migration1(MongoTemplate template) {
         throw new RuntimeException("Exception while executing migration");
     }
 }

@@ -7,7 +7,8 @@ import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.FilterType;
 
 @SpringBootApplication
-@ComponentScan(excludeFilters = @Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {TestMongrationAutoConfiguration.class,
+@ComponentScan(excludeFilters = @Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
+    TestMongrationAutoConfiguration.class,
     ApplicationWithTestMongration.class}))
 public class ApplicationWithMongration {
 

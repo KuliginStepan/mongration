@@ -11,7 +11,7 @@ public class SimpleChangeLog8 {
 
     @ChangeSet(order = 1, id = "change1", author = "Stepan")
     @Transactional
-    public void migration(MongoTemplate template){
+    public void migration(MongoTemplate template) {
         template.save(new Document("index", "1").append("text", "1"), "entity");
         template.save(new Document("index", "2").append("text", "2"), "entity");
         template.save(new Document("index", "3").append("text", "3"), "entity");
