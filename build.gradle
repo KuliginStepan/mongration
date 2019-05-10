@@ -1,0 +1,145 @@
+plugins {
+	id "io.spring.dependency-management" version "1.0.6.RELEASE"
+    id 'maven-publish'
+    id 'io.codearte.nexus-staging' version '0.20.0'
+	id 'java'
+    id 'signing'
+}
+
+apply plugin: 'jacoco'
+
+dependencyManagement {
+	imports {
+		mavenBom 'org.springframework.boot:spring-boot-starter-parent:2.1.4.RELEASE'
+	}
+}
+group = 'com.github.kuliginstepan'
+version = '0.0.1'
+sourceCompatibility = '1.8'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter:2.1.4.RELEASE'
+	implementation 'org.springframework.boot:spring-boot'
+	implementation 'org.springframework.boot:spring-boot-autoconfigure'
+	implementation 'org.springframework.data:spring-data-mongodb'
+	implementation 'org.projectlombok:lombok'
+    
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+	
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
+}
+
+nexusStaging {
+    username = System.getenv("NEXUS_USERNAME")
+    password = System.getenv("NEXUS_PASSWORD")
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
+publishing {
+    publications {
+        snapshot(MavenPublication) {
+            artifactId = project.name
+            version project.version + '-SNAPSHOT'
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = 'Mongration'
+                description = 'MongoDB data migration tool for Spring Boot projects'
+                url = 'https://github.com/KuliginStepan/mongration'
+                developers {
+                    developer {
+                        id = 'kuliginstepan'
+                        name = 'Stepan Kuligin'
+                        email = 'kuligin_stepan@mail.ru'
+                    }
+                }
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/KuliginStepan/mongration.git'
+                    developerConnection = 'scm:git:ssh://github.com/KuliginStepan/mongration.git'
+                    url = 'https://github.com/KuliginStepan/mongration'
+                }
+            }
+        }
+        release(MavenPublication) {
+            artifactId = project.name
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = 'Mongration'
+                description = 'MongoDB data migration tool for Spring Boot projects'
+                url = 'https://github.com/KuliginStepan/mongration'
+                developers {
+                    developer {
+                        id = 'kuliginstepan'
+                        name = 'Stepan Kuligin'
+                        email = 'kuligin_stepan@mail.ru'
+                    }
+                }
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/KuliginStepan/mongration.git'
+                    developerConnection = 'scm:git:ssh://github.com/KuliginStepan/mongration.git'
+                    url = 'https://github.com/KuliginStepan/mongration'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = 'snapshot'
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
+            credentials {
+                username = System.getenv("NEXUS_USERNAME")
+                password = System.getenv("NEXUS_PASSWORD")
+            }
+        }
+        maven {
+            name = 'staging'
+            url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+            credentials {
+                username = System.getenv("NEXUS_USERNAME")
+                password = System.getenv("NEXUS_PASSWORD")
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.release
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
+}
