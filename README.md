@@ -48,13 +48,13 @@ Mongration tries to acquire a lock before start executing migrations. If it coul
 If you have several instances of service, they will not start until one instance acquire a lock and execute migrations.
 
 ## @ChangeLog
-@ChangeLog is a meta-annotation to mark a class as ChangeLog. A class annotated with @ChangeLog is regular spring beans.
+`@ChangeLog` is a meta-annotation to mark a class as ChangeLog. A class annotated with `@ChangeLog` is regular spring bean.
 It allows inject dependencies in these classes (do not inject dependencies that depends on Mongo Data components, because
  they are not loaded when migrations executing).
 ### Ordering
-To order ChangeLog`s you may annotate it with @Order. Changelogs are sort with standard spring Order comparator.
+To order ChangeLog`s you may annotate it with `@Order`. Changelogs are sort with standard spring Order comparator.
 ## @ChangeSet
-@ChangeSet is annotation to mark ChangeLog\`s method as migration. This method should have `MongoTemplate` as an argument.
+`@ChangeSet` is annotation to mark ChangeLog\`s method as migration. This method should have `MongoTemplate` as an argument.
 
 Example: 
 
@@ -73,7 +73,7 @@ public class Changelog {
 
 ### Transactions
 
-If you [configure](https://docs.mongodb.com/v4.0/tutorial/deploy-replica-set/) your MongoDB to support transactions, you may execute @ChangeSet in a transaction. Mongration provide 2 ways
+If you [configure](https://docs.mongodb.com/v4.0/tutorial/deploy-replica-set/) your MongoDB to support transactions, you may execute `@ChangeSet` in a transaction. Mongration provide 2 ways
  to use transactions:
  ```java
 @ChangeLog
