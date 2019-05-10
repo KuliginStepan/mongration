@@ -17,6 +17,9 @@ group = 'com.github.kuliginstepan'
 version = '0.0.1'
 sourceCompatibility = '1.8'
 
+def nexusUsername = System.getenv("NEXUS_USERNAME") == null ? "${NEXUS_USERNAME}" : System.getenv("NEXUS_USERNAME")
+def nexusPassword = System.getenv("NEXUS_PASSWORD") == null ? "${NEXUS_PASSWORD}" : System.getenv("NEXUS_PASSWORD")
+
 repositories {
 	mavenCentral()
 }
@@ -37,8 +40,8 @@ dependencies {
 }
 
 nexusStaging {
-    username = System.getenv("NEXUS_USERNAME")
-    password = System.getenv("NEXUS_PASSWORD")
+    username = nexusUsername
+    password = nexusPassword
 }
 
 task sourcesJar(type: Jar) {
@@ -118,16 +121,16 @@ publishing {
             name = 'snapshot'
             url 'https://oss.sonatype.org/content/repositories/snapshots'
             credentials {
-                username = System.getenv("NEXUS_USERNAME")
-                password = System.getenv("NEXUS_PASSWORD")
+                username = nexusUsername
+                password = nexusPassword
             }
         }
         maven {
             name = 'staging'
             url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
             credentials {
-                username = System.getenv("NEXUS_USERNAME")
-                password = System.getenv("NEXUS_PASSWORD")
+                username = nexusUsername
+                password = nexusPassword
             }
         }
     }
