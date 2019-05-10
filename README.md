@@ -34,13 +34,13 @@ To change it add property `mongration.changelogs-collection` with custom collect
 executed changesets in collection named `mongration_changelogs` 
 ### Creating first ChangeSet
 After adding a dependency you need to create Changelog class and annotate it with `@ChangeLog`
-```
+```java
 @ChangeLog
 public class Changelog {
     
     @ChangeSet(order = 1, id = "change1", author = "Stepan")
     public void firstMigration(MongoTemplate template) {
-        ...
+        template.save(new Document("key", "value"), "collection");
     }
 }
 ```

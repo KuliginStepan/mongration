@@ -14,7 +14,7 @@ dependencyManagement {
     }
 }
 group = 'com.github.kuliginstepan'
-version = '0.0.1'
+version = '0.0.2'
 sourceCompatibility = '1.8'
 
 def nexusUsername = System.getenv("NEXUS_USERNAME") == null ? "${NEXUS_USERNAME}" : System.getenv("NEXUS_USERNAME")
@@ -25,7 +25,6 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter:2.1.4.RELEASE'
     implementation 'org.springframework.boot:spring-boot'
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     implementation 'org.springframework.data:spring-data-mongodb'
