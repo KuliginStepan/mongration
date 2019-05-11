@@ -11,14 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ApplicationWithTestMongration.class, properties = "test.mongration.enable-transactions=true")
 @Import(UnexpectedChangeLog13.class)
-@DirtiesContext(classMode = ClassMode.BEFORE_CLASS)
+@ActiveProfiles("db")
 public class MongrationTest13 {
 
     @Autowired

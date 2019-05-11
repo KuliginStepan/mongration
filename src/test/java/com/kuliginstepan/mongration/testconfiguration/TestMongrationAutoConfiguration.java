@@ -3,6 +3,7 @@ package com.kuliginstepan.mongration.testconfiguration;
 import com.kuliginstepan.mongration.Mongration;
 import com.kuliginstepan.mongration.configuration.MongrationProperties;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -34,7 +35,7 @@ public class TestMongrationAutoConfiguration {
 
     @Bean
     public Mongration mongration() {
-        MongoTemplate template = new MongoTemplate(client, properties.getDatabase());
+        MongoTemplate template = new MongoTemplate(client, getDatabase());
         TransactionTemplate txTemplate = new TransactionTemplate(transactionManager());
         template.setSessionSynchronization(SessionSynchronization.ALWAYS);
         log.info("configured TestMongration with properties: {}", mongrationProperties);
@@ -44,6 +45,12 @@ public class TestMongrationAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(MongoTransactionManager.class)
     public MongoTransactionManager transactionManager() {
-        return new MongoTransactionManager(new SimpleMongoDbFactory(client, properties.getDatabase()));
+        return new MongoTransactionManager(new SimpleMongoDbFactory(client, getDatabase()));
     }
+
+    private String getDatabase() {
+        return properties.getDatabase() == null ? new MongoClientURI(properties.getUri()).getDatabase()
+            : properties.getDatabase();
+    }
+
 }
