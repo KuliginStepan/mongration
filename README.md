@@ -23,11 +23,13 @@ MongoDB data migration tool for Spring Boot projects
 </dependency>
 ```
 #### Gradle
-`compile("com.github.kuliginstepan:mongration:version")`
-
+```groovy
+compile("com.github.kuliginstepan:mongration:version")
+```
 or 
-
-`implementation 'com.github.kuliginstepan:mongration:version'`
+```groovy
+implementation 'com.github.kuliginstepan:mongration:version'
+```
 ### Configuration
 Mongration provides default configuration. You may change collection name where mongration will save executed changesets.
 To change it add property `mongration.changelogs-collection` with custom collection name. By default mongration will save
