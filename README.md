@@ -38,6 +38,7 @@ configuration. Create separate configuration class and add `@DependsOn("mongrati
 before Mongo Data Repositories. This is a temporary solution, so I will try to make more elegant solution.
 
 ```java
+@Configuration
 @EnableMongoRepositories
 @DependsOn("mongration")
 public class MongoRepositoriesConfiguration {
