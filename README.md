@@ -31,16 +31,15 @@ or
 ### Configuration
 Mongration provides default configuration. You may change collection name where mongration will save executed changesets.
 To change it add property `mongration.changelogs-collection` with custom collection name. By default mongration will save
-executed changesets in collection named `mongration_changelogs`
+executed changesets in collection named `mongration_changelogs`. If you won\`t use auto-configuration, you may use `@EnableMongration`
+to configure Mongration.
 ### @EnableMongoRepositories
 If you use `@EnableMongoRepositories` to activate Mongo Data instead of Auto configuration, you will need to make changes in
-configuration. Create separate configuration class and add `@DependsOn("mongration")`. It allows to create Mongration bean
-before Mongo Data Repositories. This is a temporary solution, so I will try to make more elegant solution.
-
+configuration. To avoid unexpected behavior use annotation `@EnableMongration` along with `@EnableMongoRepositories`
 ```java
 @Configuration
 @EnableMongoRepositories
-@DependsOn("mongration")
+@EnableMongration
 public class MongoRepositoriesConfiguration {
     
 }
@@ -149,3 +148,5 @@ public class Changelog {
     }
 }
 ```
+To use native mongodb transactions (`@Transactional`) you will need to provide bean of type `MongoTransactionManager`. Mongration
+creates this one if it doesn\`t exist.
