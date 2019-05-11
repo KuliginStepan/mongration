@@ -19,19 +19,25 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.ReflectionUtils;
 
+/**
+ * Class which executes particulars {@link ChangeSet} found in {@link ChangeLog}.
+ */
 @Slf4j
 public class Mongration implements BeanFactoryAware, InitializingBean {
 
     private final MongoTemplate template;
+    @Nullable
     private final TransactionTemplate txTemplate;
     private final ChangeSetService service;
     private ListableBeanFactory factory;
 
-    public Mongration(MongoTemplate template, TransactionTemplate txTemplate,
-        MongrationProperties properties) {
+    public Mongration(@NonNull MongoTemplate template, @Nullable TransactionTemplate txTemplate,
+        @NonNull MongrationProperties properties) {
         this.template = template;
         this.txTemplate = txTemplate;
         service = new ChangeSetService(template, properties);
@@ -43,7 +49,7 @@ public class Mongration implements BeanFactoryAware, InitializingBean {
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         log.info("mongration started");
         TreeMap<Object, TreeSet<Method>> migrations = findMigrationsForExecution();
         if (hasNotExecutedMigrations(migrations)) {
