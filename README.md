@@ -29,9 +29,22 @@ or
 
 `implementation 'com.github.kuliginstepan:mongration:version'`
 ### Configuration
-Mongration provide default configuration. You may change collection name where mongration will save executed changesets.
+Mongration provides default configuration. You may change collection name where mongration will save executed changesets.
 To change it add property `mongration.changelogs-collection` with custom collection name. By default mongration will save
-executed changesets in collection named `mongration_changelogs` 
+executed changesets in collection named `mongration_changelogs`
+### @EnableMongoRepositories
+If you use `@EnableMongoRepositories` to activate Mongo Data instead of Auto configuration, you will need to make changes in
+configuration. Create separate configuration class and add `@DependsOn("mongration")`. It allows to create Mongration bean
+before Mongo Data Repositories. This is a temporary solution, so I will try to make more elegant solution.
+
+```java
+@EnableMongoRepositories
+@DependsOn("mongration")
+public class MongoRepositoriesConfiguration {
+    
+}
+``` 
+
 ### Creating first ChangeSet
 After adding a dependency you need to create Changelog class and annotate it with `@ChangeLog`
 ```java
@@ -45,8 +58,8 @@ public class Changelog {
 }
 ```
 ChangeSets will be executed on application startup.
-## When are the migrations are executed
-Mongration provide `MongrationAutoConfiguration`, which configures `Mongration` bean after `MongoAutoConfiguration` and 
+## When migrations are executed
+Mongration provides `MongrationAutoConfiguration`, which configures `Mongration` bean after `MongoAutoConfiguration` and 
 before `MongoDataAutoConfiguration`. This means that while migrating, Mongo Data is not yet configured. It 
 necessary to avoid unexpected behavior like this:
 
