@@ -15,4 +15,9 @@ public class MongrationProperties {
      * Changelogs collection name
      */
     private String changelogsCollection = "mongration_changelogs";
+
+    /**
+     * Enable or disable mongration
+     */
+    private boolean enabled = true;
 }
