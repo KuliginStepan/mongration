@@ -30,7 +30,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 @AutoConfigureBefore(MongoDataAutoConfiguration.class)
 @EnableConfigurationProperties(MongrationProperties.class)
 @ConditionalOnMissingBean(Mongration.class)
-@ConditionalOnProperty(value = "mongation.enabled", matchIfMissing = true)
+@ConditionalOnProperty(value = MongrationProperties.ENABLED_PROPERTY, matchIfMissing = true)
 @RequiredArgsConstructor
 @Slf4j
 public class MongrationAutoConfiguration {

@@ -11,6 +11,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "mongration")
 public class MongrationProperties {
 
+    public static final String ENABLED_PROPERTY = "mongration.enabled";
+
     /**
      * Changelogs collection name
      */
