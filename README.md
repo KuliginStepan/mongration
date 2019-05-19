@@ -33,20 +33,7 @@ implementation 'com.github.kuliginstepan:mongration:version'
 ### Configuration
 Mongration provides default configuration. You may change collection name where mongration will save executed changesets.
 To change it add property `mongration.changelogs-collection` with custom collection name. By default mongration will save
-executed changesets in collection named `mongration_changelogs`. If you won\`t use auto-configuration, you may use `@EnableMongration`
-to configure Mongration.
-### @EnableMongoRepositories
-If you use `@EnableMongoRepositories` to activate Mongo Data instead of Auto configuration, you will need to make changes in
-configuration. To avoid unexpected behavior use annotation `@EnableMongration` along with `@EnableMongoRepositories`
-```java
-@Configuration
-@EnableMongoRepositories
-@EnableMongration
-public class MongoRepositoriesConfiguration {
-    
-}
-``` 
-
+executed changesets in collection named `mongration_changelogs`.
 ### Creating first ChangeSet
 After adding a dependency you need to create Changelog class and annotate it with `@ChangeLog`
 ```java
@@ -100,9 +87,9 @@ If you have several instances of service, they will not start until one instance
 It allows inject dependencies in these classes (do not inject dependencies that depends on Mongo Data components, because
  they are not loaded when migrations executing).
 ### Ordering
-To order ChangeLog\`s you may annotate it with `@Order`. Changelogs are sort with standard spring Order comparator.
+To order ChangeLog's you may annotate it with `@Order`. Changelogs are sort with standard spring Order comparator.
 ## @ChangeSet
-`@ChangeSet` is annotation to mark ChangeLog\`s method as migration. This method should have `MongoTemplate` as an argument.
+`@ChangeSet` is annotation to mark ChangeLog's method as migration. This method should have `MongoTemplate` as an argument.
 
 Example: 
 
@@ -151,4 +138,4 @@ public class Changelog {
 }
 ```
 To use native mongodb transactions (`@Transactional`) you will need to provide bean of type `MongoTransactionManager`. Mongration
-creates this one if it doesn\`t exist.
+creates this one if it doesn't exist.
