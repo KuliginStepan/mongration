@@ -7,6 +7,10 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
+/**
+ * {@link BeanPostProcessor} necessary to ensure, that {@link Mongration} will be initialized before {@link MongoTemplate}
+ */
+
 public class MongrationBeanPostProcessor implements BeanPostProcessor, BeanFactoryAware {
 
     private BeanFactory factory;
