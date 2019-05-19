@@ -14,7 +14,7 @@ dependencyManagement {
     }
 }
 group = 'com.github.kuliginstepan'
-version = '0.0.5'
+version = '0.0.6'
 sourceCompatibility = '1.8'
 
 def nexusUsername = System.getenv("NEXUS_USERNAME") == null ? "${NEXUS_USERNAME}" : System.getenv("NEXUS_USERNAME")
