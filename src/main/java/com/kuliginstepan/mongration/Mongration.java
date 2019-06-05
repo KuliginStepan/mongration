@@ -4,6 +4,7 @@ import com.kuliginstepan.mongration.annotation.ChangeLog;
 import com.kuliginstepan.mongration.annotation.ChangeSet;
 import com.kuliginstepan.mongration.configuration.MongrationProperties;
 import com.kuliginstepan.mongration.service.ChangeSetService;
+import com.mongodb.MongoClient;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -11,12 +12,14 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.PreDestroy;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.lang.NonNull;
@@ -34,7 +37,10 @@ public class Mongration implements BeanFactoryAware, InitializingBean {
     @Nullable
     private final TransactionTemplate txTemplate;
     private final ChangeSetService service;
-    private ListableBeanFactory factory;
+    @Setter
+    @Nullable
+    private MongoClient client;
+    private DefaultListableBeanFactory factory;
 
     public Mongration(@NonNull MongoTemplate template, @Nullable TransactionTemplate txTemplate,
         @NonNull MongrationProperties properties) {
@@ -45,7 +51,7 @@ public class Mongration implements BeanFactoryAware, InitializingBean {
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        factory = (ListableBeanFactory) beanFactory;
+        factory = (DefaultListableBeanFactory) beanFactory;
     }
 
     @Override
@@ -63,6 +69,16 @@ public class Mongration implements BeanFactoryAware, InitializingBean {
             }
         }
         log.info("mongration finished his work");
+        factory.destroyBean(this);
+    }
+
+    @PreDestroy
+    public void close() {
+        log.info("destroying Mongration");
+        if (client != null) {
+            log.info("closing MongoClient");
+            client.close();
+        }
     }
 
     private static boolean hasNotExecutedMigrations(TreeMap<Object, TreeSet<Method>> migrations) {
