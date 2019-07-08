@@ -27,7 +27,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 /**
  * {@link org.springframework.boot.autoconfigure.EnableAutoConfiguration} for Mongration support.
  * Registers a {@link Mongration} bean and {@link MongrationBeanPostProcessor} bean post processor.
- * Registers a {@link MongoTransactionManager} bean if no other beans of the same type are configured.
  * {@link MongrationProperties} used to configure a {@link Mongration}
  * {@link MongrationAutoConfiguration} may be disabled with mongration.enabled property
  */
