@@ -108,8 +108,7 @@ public class Changelog {
 
 ### Transactions
 
-If you [configure](https://docs.mongodb.com/v4.0/tutorial/deploy-replica-set/) your MongoDB to support transactions, you may execute `@ChangeSet` in a transaction. Mongration provide 2 ways
- to use transactions:
+If you [configure](https://docs.mongodb.com/v4.0/tutorial/deploy-replica-set/) your MongoDB to support transactions, you may execute `@ChangeSet` in a transaction.
  ```java
 @ChangeLog
 public class Changelog {
@@ -137,5 +136,3 @@ public class Changelog {
     }
 }
 ```
-To use native mongodb transactions (`@Transactional`) you will need to provide bean of type `MongoTransactionManager`. Mongration
-creates this one if it doesn't exist.
