@@ -1,11 +1,12 @@
 package com.kuliginstepan.mongration.configuration;
 
+import com.kuliginstepan.mongration.AbstractMongration;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 
 /**
- * Configuration properties used to configure {@link com.kuliginstepan.mongration.Mongration}
+ * Configuration properties used to configure {@link AbstractMongration}
  */
 @Data
 @ConfigurationProperties(prefix = "mongration")
@@ -22,4 +23,9 @@ public class MongrationProperties {
      * Enable or disable mongration
      */
     private boolean enabled = true;
+
+    /**
+     * Mode for running changesets
+     */
+    private MongrationMode mode = MongrationMode.AUTO;
 }
