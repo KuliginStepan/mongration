@@ -55,6 +55,9 @@ If you configured [MongoDB](https://docs.mongodb.com/manual/tutorial/deploy-repl
 [Spring](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/#mongo.transactions) to enable 
 transaction support, changesets may be executed in transactions. 
 
+### Indexes
+Spring Mongo Data 2.2 provides a way to disable automation indexes creation. It's recommended to set `spring.data.mongodb.auto-index-creation` to `false`. Mongration creates indexes for all persistent entities after execution changesets.
+
 ### Spring Boot Actuator
 Mongration provides actuator endpoint `mongration`, which lists all executed changesets.
 
