@@ -9,8 +9,9 @@ MongoDB data migration tool for Spring Boot projects
 
 ## Key features
 *   Support Spring Boot lifecycle
-*   ChangeLogs are regular spring beans
-*   Support mongoDB transactions
+*   Changelogs are regular spring beans
+*   Support MongoDB transactions
+*   Support ReactiveMongoTemplate
 
 ## Getting started
 ### Add a dependency
@@ -30,112 +31,33 @@ or
 ```groovy
 implementation 'com.github.kuliginstepan:mongration:version'
 ```
-### Configuration
-Mongration provides default configuration. You may change collection name where mongration will save executed changesets.
-To change it add property `mongration.changelogs-collection` with custom collection name. By default mongration will save
-executed changesets in collection named `mongration_changelogs`.
-### Creating first ChangeSet
-After adding a dependency you need to create Changelog class and annotate it with `@ChangeLog`
-```java
-@ChangeLog
-public class Changelog {
-    
-    @ChangeSet(order = 1, id = "change1", author = "Stepan")
-    public void firstMigration(MongoTemplate template) {
-        template.save(new Document("key", "value"), "collection");
-    }
-}
-```
-ChangeSets will be executed on application startup.
-## When migrations are executed
-Mongration provides `MongrationAutoConfiguration`, which configures `Mongration` bean after `MongoAutoConfiguration` and 
-before `MongoDataAutoConfiguration`. This means that while migrating, Mongo Data is not yet configured. It 
-necessary to avoid unexpected behavior like this:
 
-current document mapping:
+### Configuration properties
+*   `mongration.enabled` – enable or disable mongration. Default to `true`
+*   `mongration.changelogs-collection` – collection for saving changesets. Defaults to `mongration_changelogs`
+*   `mongration.mode` – mode for executing changesets. Defaults to `AUTO`, means that mongration will try to analyze 
+changesets to choose proper mode. Possible modes are `IMPERATIVE`, `REACTIVE`
 
-```java
-@Document
-public class Entity {
-    
-    @Id
-    private String id;
-}
-```
-new document mapping:
-```java
-@Document
-public class Entity {
+### Changelog
+To mark class as a changelog you need to annotate it with `@Changelog`. This annotation makes class regular spring bean.
+`@Changelog` has property `id`, which is a simple class name by default.
 
-    @Id
-    private String id;
-    @Indexed(unique = true)
-    private String text;
-}
-```
+### Changeset
+To mark method as a changeset you need to annotate it with `@Changeset`. By default changeset's id is a method name.
+Changelog collection has compound unique index `@CompoundIndex(def = "{'changeset': 1, 'changelog': 1}", unique = true)` 
+to check if changeset executed or not.
 
-We need to write a migration to fill `text` field with unique values. When this migration is executed, Mongo Data will not
-create a unique index with `text` field yet and migration successfully executed. If Mongo Data create index before migration
-we will see DuplicateKeyException on startup.
+You can inject all beans available in bean factory as a changeset's method arguments.
 
-## Locking
-Mongration tries to acquire a lock before start executing migrations. If it could not acquire a lock, it would throw exception and application would not start.
-If you have several instances of service, they will not start until one instance acquire a lock and execute migrations.
+Imperative changeset method must have `void` return type and reactive changeset method must returns `Mono<Void>`.
 
-## @ChangeLog
-`@ChangeLog` is a meta-annotation to mark a class as ChangeLog. A class annotated with `@ChangeLog` is regular spring bean.
-It allows inject dependencies in these classes (do not inject dependencies that depends on Mongo Data components, because
- they are not loaded when migrations executing).
-### Ordering
-To order ChangeLog's you may annotate it with `@Order`. Changelogs are sort with standard spring Order comparator.
-## @ChangeSet
-`@ChangeSet` is annotation to mark ChangeLog's method as migration. This method should have `MongoTemplate` as an argument.
+If you configured [MongoDB](https://docs.mongodb.com/manual/tutorial/deploy-replica-set/) and 
+[Spring](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/#mongo.transactions) to enable 
+transaction support, changesets may be executed in transactions. 
 
-Example: 
+### Spring Boot Actuator
+Mongration provides actuator endpoint `mongration`, which lists all executed changesets.
 
-```java
-@ChangeLog
-public class Changelog {
-    
-    @ChangeSet(order = 1, id = "change1", author = "Stepan")
-    public void migration(MongoTemplate template){
-        template.save(new Document("index", "1").append("text", "1"), "entity");
-        template.save(new Document("index", "2").append("text", "2"), "entity");
-        template.save(new Document("index", "3").append("text", "3"), "entity");
-    }
-}
-```
-
-### Transactions
-
-If you [configure](https://docs.mongodb.com/v4.0/tutorial/deploy-replica-set/) your MongoDB to support transactions, you may execute `@ChangeSet` in a transaction. Mongration provide 2 ways
- to use transactions:
- ```java
-@ChangeLog
-public class Changelog {
-   
-    @ChangeSet(order = 1, id = "change1", author = "Stepan")
-    @Transactional //annotate method with @Transactional
-    public void changeset1(MongoTemplate template) {
-        template.save(new Document("index", "1").append("text", "1"), "entity");
-        template.save(new Document("index", "2").append("text", "2"), "entity");
-        template.save(new Document("index", "3").append("text", "3"), "entity");
-    }
-    
-    @ChangeSet(order = 2, id = "change2", author = "Stepan")
-    //add TransactionTemplate argument
-    public void migration(MongoTemplate template, TransactionTemplate txTemplate){
-        template.createCollection("entity");
-        txTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                template.save(new Document("index", "1").append("text", "1"), "entity");
-                template.save(new Document("index", "2").append("text", "2"), "entity");
-                template.save(new Document("index", "3").append("text", "3"), "entity");
-            }
-        });
-    }
-}
-```
-To use native mongodb transactions (`@Transactional`) you will need to provide bean of type `MongoTransactionManager`. Mongration
-creates this one if it doesn't exist.
+### Migration from old versions
+*   drop changelog table
+*   remove all executed changesets

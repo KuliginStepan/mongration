@@ -1,13 +1,33 @@
 version: 2
+executorType: machine
 jobs:
   build:
-    docker:
-    - image: circleci/openjdk:8-jdk-browsers
+    machine:
+      image: ubuntu-1604:201903-01
 
     environment:
       GRADLE_OPTS: -Xmx2048m
 
     steps:
+    - run:
+        name: Install java 11
+        command: >
+          wget
+          https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.3_7.tar.gz
+          -O /tmp/openjdk-11.tar.gz
+
+          sudo mkdir -p /usr/lib/jvm
+
+          sudo tar xfvz /tmp/openjdk-11.tar.gz --directory /usr/lib/jvm
+
+          rm -f /tmp/openjdk-11.tar.gz
+
+          sudo sh -c 'for bin in /usr/lib/jvm/jdk-11.0.3+7/bin/*; do
+          update-alternatives --install /usr/bin/$(basename $bin) $(basename $bin)
+          $bin 100; done'
+
+          sudo sh -c 'for bin in /usr/lib/jvm/jdk-11.0.3+7/bin/*; do
+          update-alternatives --set $(basename $bin) $bin; done'
     - checkout
     - run:
         name: Run build with tests
@@ -29,10 +49,29 @@ jobs:
         path: build/libs
 
   publish:
-    docker:
-    - image: circleci/openjdk:8-jdk-browsers
+    machine:
+      image: ubuntu-1604:201903-01
 
     steps:
+    - run:
+        name: Install java 11
+        command: >
+          wget
+          https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.3%2B7/OpenJDK11U-jdk_x64_linux_hotspot_11.0.3_7.tar.gz
+          -O /tmp/openjdk-11.tar.gz
+
+          sudo mkdir -p /usr/lib/jvm
+
+          sudo tar xfvz /tmp/openjdk-11.tar.gz --directory /usr/lib/jvm
+
+          rm -f /tmp/openjdk-11.tar.gz
+
+          sudo sh -c 'for bin in /usr/lib/jvm/jdk-11.0.3+7/bin/*; do
+          update-alternatives --install /usr/bin/$(basename $bin) $(basename $bin)
+          $bin 100; done'
+
+          sudo sh -c 'for bin in /usr/lib/jvm/jdk-11.0.3+7/bin/*; do
+          update-alternatives --set $(basename $bin) $bin; done'
     - checkout
     - run:
         name: Publish to snapshot

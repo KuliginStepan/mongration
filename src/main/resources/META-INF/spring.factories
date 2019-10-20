@@ -1,1 +1,3 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.kuliginstepan.mongration.configuration.MongrationAutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.kuliginstepan.mongration.configuration.MongrationAutoConfiguration,\
+com.kuliginstepan.mongration.actuator.MongrationActuatorAutoConfiguration

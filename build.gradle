@@ -1,41 +1,58 @@
 plugins {
-    id "io.spring.dependency-management" version "1.0.6.RELEASE"
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'maven-publish'
     id 'io.codearte.nexus-staging' version '0.20.0'
     id 'java'
+    id 'java-library'
     id 'signing'
+    id 'jacoco'
 }
 
 apply plugin: 'jacoco'
 
 dependencyManagement {
     imports {
-        mavenBom 'org.springframework.boot:spring-boot-starter-parent:2.1.4.RELEASE'
+        mavenBom 'org.springframework.boot:spring-boot-starter-parent:2.2.0.RELEASE'
     }
 }
 group = 'com.github.kuliginstepan'
-version = '0.0.6'
-sourceCompatibility = '1.8'
+version = '1.0.0'
+sourceCompatibility = 11
+targetCompatibility = 11
 
 def nexusUsername = System.getenv("NEXUS_USERNAME") == null ? "${NEXUS_USERNAME}" : System.getenv("NEXUS_USERNAME")
 def nexusPassword = System.getenv("NEXUS_PASSWORD") == null ? "${NEXUS_PASSWORD}" : System.getenv("NEXUS_PASSWORD")
 
 repositories {
     mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot'
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
-    implementation 'org.springframework.data:spring-data-mongodb'
-    implementation 'org.projectlombok:lombok'
+    api 'io.projectreactor:reactor-core'
+
+    compileOnly 'org.springframework.data:spring-data-mongodb'
+    compileOnly 'org.springframework.boot:spring-boot-actuator-autoconfigure'
+    compileOnly 'org.mongodb:mongodb-driver-reactivestreams'
+    compileOnly 'org.projectlombok:lombok'
 
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
-    testAnnotationProcessor 'org.projectlombok:lombok'
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation 'org.testcontainers:junit-jupiter:1.12.1'
+    testImplementation 'org.springframework.data:spring-data-mongodb'
+    testImplementation 'org.mongodb:mongodb-driver-reactivestreams'
+    testImplementation 'io.projectreactor:reactor-core'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 nexusStaging {
@@ -142,6 +159,6 @@ signing {
 jacocoTestReport {
     reports {
         xml.enabled true
-        html.enabled false
+        html.enabled true
     }
 }
