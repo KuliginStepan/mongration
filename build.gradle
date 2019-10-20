@@ -18,6 +18,7 @@ dependencyManagement {
 group = 'com.github.kuliginstepan'
 version = '1.0.0'
 sourceCompatibility = 11
+targetCompatibility = 11
 
 def nexusUsername = System.getenv("NEXUS_USERNAME") == null ? "${NEXUS_USERNAME}" : System.getenv("NEXUS_USERNAME")
 def nexusPassword = System.getenv("NEXUS_PASSWORD") == null ? "${NEXUS_PASSWORD}" : System.getenv("NEXUS_PASSWORD")
@@ -159,6 +160,5 @@ jacocoTestReport {
     reports {
         xml.enabled true
         html.enabled true
-        html.destination file("${buildDir}/jacocoHtml")
     }
 }
