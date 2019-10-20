@@ -3,7 +3,7 @@ executorType: machine
 jobs:
   build:
     machine:
-    - image: ubuntu-1604:201903-01
+      image: ubuntu-1604:201903-01
 
     environment:
       GRADLE_OPTS: -Xmx2048m
