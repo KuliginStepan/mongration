@@ -5,6 +5,7 @@ import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.mongodb.core.index.IndexResolver;
 import org.springframework.data.mongodb.core.index.ReactiveIndexOperationsProvider;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoPersistentEntity;
 import org.springframework.data.mongodb.core.mapping.MongoPersistentProperty;
 import reactor.core.publisher.Flux;
@@ -35,6 +36,7 @@ public class ReactiveIndexCreatorImpl implements IndexCreator {
     @Override
     public Mono<Void> createIndexes() {
         return Flux.fromIterable(mappingContext.getPersistentEntities())
+            .filter(entity -> entity.isAnnotationPresent(Document.class))
             .map(PersistentEntity::getType)
             .flatMap(this::createIndexes)
             .then();
