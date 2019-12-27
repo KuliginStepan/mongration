@@ -31,7 +31,8 @@ import reactor.util.function.Tuples;
 
 
 /**
- * Main component which executes {@link Changeset}. Execution starts when {@link ApplicationReadyEvent} will be published
+ * Main component which executes {@link Changeset}. Execution starts when {@link ApplicationReadyEvent} will be
+ * published
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -50,7 +51,12 @@ public abstract class AbstractMongration {
             .publishOn(Schedulers.immediate())
             .flatMap(tuple -> lockService.acquireLock()
                 .then(Mono.defer(() -> indexCreator.createIndexes(ChangesetEntity.class)))
-                .then(Mono.defer(() -> executeChangelogMigrations(tuple)))
+                .then(Mono.defer(() -> {
+                    return Flux.fromIterable(tuple)
+                        .flatMap(this::executeChangelogMigrations)
+                        .then();
+                }))
+//                .then(Mono.defer(() -> executeChangelogMigrations(tuple)))
                 .then(Mono.defer(indexCreator::createIndexes))
                 .then(Mono.defer(lockService::releaseLock))
                 .onErrorResume(t -> lockService.releaseLock()
@@ -92,14 +98,15 @@ public abstract class AbstractMongration {
         return errors.isEmpty() ? Mono.empty() : Mono.error(() -> new MongrationException(String.join(",", errors)));
     }
 
-    private Flux<Tuple2<Object, List<Method>>> findMigrationsForExecution() {
+    private Mono<List<Tuple2<Object, List<Method>>>> findMigrationsForExecution() {
         return Flux.fromIterable(context.getBeansWithAnnotation(Changelog.class).values())
             .flatMap(changelog -> validateChangelog(getChangelogClass(changelog))
                 .thenMany(Flux.fromIterable(findChangeSetMethods(getChangelogClass(changelog))))
                 .filterWhen(method -> changesetService.needExecuteChangeset(method, changelog))
                 .collectSortedList(Comparator.comparingInt(method -> extractChangeset(method).order()))
                 .map(changesets -> Tuples.of(changelog, changesets)))
-            .sort(AnnotationAwareOrderComparator.INSTANCE);
+            .sort(AnnotationAwareOrderComparator.INSTANCE)
+            .collectList();
     }
 
     private Mono<Void> executeChangelogMigrations(Tuple2<Object, List<Method>> tuple) {

@@ -12,7 +12,7 @@ apply plugin: 'jacoco'
 
 dependencyManagement {
     imports {
-        mavenBom 'org.springframework.boot:spring-boot-starter-parent:2.2.0.RELEASE'
+        mavenBom 'org.springframework.boot:spring-boot-starter-parent:2.2.2.RELEASE'
     }
 }
 group = 'com.github.kuliginstepan'
