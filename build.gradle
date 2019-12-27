@@ -78,6 +78,14 @@ publishing {
             from components.java
             artifact sourcesJar
             artifact javadocJar
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
             pom {
                 name = 'Mongration'
                 description = 'MongoDB data migration tool for Spring Boot projects'
@@ -107,6 +115,14 @@ publishing {
             from components.java
             artifact sourcesJar
             artifact javadocJar
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
             pom {
                 name = 'Mongration'
                 description = 'MongoDB data migration tool for Spring Boot projects'

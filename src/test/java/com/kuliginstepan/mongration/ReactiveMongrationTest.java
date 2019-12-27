@@ -108,7 +108,6 @@ class ReactiveMongrationTest extends MongoIntegrationTest {
     private ReactiveMongoTemplate template;
 
     @Test
-    @SneakyThrows
     void shouldExecuteChangeLog() {
         var changesets = template.findAll(ChangesetEntity.class, "test_collection").collectList().block();
         var documents = template.findAll(Document.class, "test").collectList().block();
