@@ -51,12 +51,9 @@ public abstract class AbstractMongration {
             .publishOn(Schedulers.immediate())
             .flatMap(tuple -> lockService.acquireLock()
                 .then(Mono.defer(() -> indexCreator.createIndexes(ChangesetEntity.class)))
-                .then(Mono.defer(() -> {
-                    return Flux.fromIterable(tuple)
-                        .flatMap(this::executeChangelogMigrations)
-                        .then();
-                }))
-//                .then(Mono.defer(() -> executeChangelogMigrations(tuple)))
+                .then(Mono.defer(() -> Flux.fromIterable(tuple)
+                    .flatMap(this::executeChangelogMigrations)
+                    .then()))
                 .then(Mono.defer(indexCreator::createIndexes))
                 .then(Mono.defer(lockService::releaseLock))
                 .onErrorResume(t -> lockService.releaseLock()
