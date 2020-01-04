@@ -1,0 +1,119 @@
+def nexusUsername = System.getenv("NEXUS_USERNAME") ?: (project.findProperty("NEXUS_USERNAME") ?: "")
+def nexusPassword = System.getenv("NEXUS_PASSWORD") ?: (project.findProperty("NEXUS_PASSWORD") ?: "")
+
+nexusStaging {
+    username = nexusUsername
+    password = nexusPassword
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
+publishing {
+    publications {
+        snapshot(MavenPublication) {
+            artifactId = project.name
+            version project.version + '-SNAPSHOT'
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'Mongration'
+                description = 'MongoDB data migration tool for Spring Boot projects'
+                url = 'https://github.com/KuliginStepan/mongration'
+                developers {
+                    developer {
+                        id = 'kuliginstepan'
+                        name = 'Stepan Kuligin'
+                        email = 'kuligin_stepan@mail.ru'
+                    }
+                }
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/KuliginStepan/mongration.git'
+                    developerConnection = 'scm:git:ssh://github.com/KuliginStepan/mongration.git'
+                    url = 'https://github.com/KuliginStepan/mongration'
+                }
+            }
+        }
+        release(MavenPublication) {
+            artifactId = project.name
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'Mongration'
+                description = 'MongoDB data migration tool for Spring Boot projects'
+                url = 'https://github.com/KuliginStepan/mongration'
+                developers {
+                    developer {
+                        id = 'kuliginstepan'
+                        name = 'Stepan Kuligin'
+                        email = 'kuligin_stepan@mail.ru'
+                    }
+                }
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/KuliginStepan/mongration.git'
+                    developerConnection = 'scm:git:ssh://github.com/KuliginStepan/mongration.git'
+                    url = 'https://github.com/KuliginStepan/mongration'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = 'snapshot'
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
+            credentials {
+                username = nexusUsername
+                password = nexusPassword
+            }
+        }
+        maven {
+            name = 'staging'
+            url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+            credentials {
+                username = nexusUsername
+                password = nexusPassword
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.release
+}
