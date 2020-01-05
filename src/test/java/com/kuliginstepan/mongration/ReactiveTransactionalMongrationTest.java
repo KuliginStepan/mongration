@@ -36,38 +36,16 @@ import reactor.core.publisher.Mono;
 @Import({TestChangeLog.class, TestConfig.class})
 class ReactiveTransactionalMongrationTest extends MongoTransactionalIntegrationTest {
 
-    @Changelog
-    public static class TestChangeLog {
-
-        @Changeset(author = "Stepan", order = 0)
-        public Mono<Void> testChangeSet0(ReactiveMongoTemplate template) {
-            return template.createCollection("test").then();
-        }
-
-        @Changeset(author = "Stepan", order = 1)
-        @Transactional
-        public Mono<Void> testChangeSet(ReactiveMongoTemplate template) {
-            return template.save(new Document("key", "value"), "test")
-                .then(Mono.error(new RuntimeException()));
-        }
-
-    }
-
-    @Configuration
-    public static class TestConfig {
-
-        @Bean
-        public ReactiveMongoTransactionManager mongoTransactionManager(ReactiveMongoDatabaseFactory factory) {
-            return new ReactiveMongoTransactionManager(factory);
-        }
-    }
-
     @Test
     void shouldRollbackTransactionalChangeSet() {
         assertThrows(RuntimeException.class, () -> {
             new SpringApplicationBuilder()
                 .initializers(new Initializer())
-                .properties("mongration.mode=reactive", "mongration.changelogsCollection=test_collection")
+                .properties(
+                    "mongration.mode=reactive",
+                    "mongration.changelogsCollection=test_collection",
+                    "logging.level.com.kuliginstepan.mongration=TRACE"
+                )
                 .sources(ReactiveTransactionalMongrationTest.class)
                 .build().run();
         });
@@ -94,5 +72,31 @@ class ReactiveTransactionalMongrationTest extends MongoTransactionalIntegrationT
                 template.dropCollection("test").block();
                 template.dropCollection("test_collection").block();
             });
+    }
+
+    @Changelog
+    public static class TestChangeLog {
+
+        @Changeset(author = "Stepan", order = 0)
+        public Mono<Void> testChangeSet0(ReactiveMongoTemplate template) {
+            return template.createCollection("test").then();
+        }
+
+        @Changeset(author = "Stepan", order = 1)
+        @Transactional
+        public Mono<Void> testChangeSet(ReactiveMongoTemplate template) {
+            return template.save(new Document("key", "value"), "test")
+                .then(Mono.error(new RuntimeException("Sample exception!")));
+        }
+
+    }
+
+    @Configuration
+    public static class TestConfig {
+
+        @Bean
+        public ReactiveMongoTransactionManager mongoTransactionManager(ReactiveMongoDatabaseFactory factory) {
+            return new ReactiveMongoTransactionManager(factory);
+        }
     }
 }

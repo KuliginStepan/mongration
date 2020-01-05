@@ -9,7 +9,6 @@ import com.kuliginstepan.mongration.annotation.Changelog;
 import com.kuliginstepan.mongration.annotation.Changeset;
 import com.kuliginstepan.mongration.configuration.MongrationAutoConfiguration;
 import com.kuliginstepan.mongration.entity.ChangesetEntity;
-import lombok.SneakyThrows;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +18,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -29,80 +29,13 @@ import reactor.core.publisher.Mono;
 @DataMongoTest(properties = {
     "mongration.mode=reactive",
     "mongration.changelogsCollection=test_collection",
-    "spring.data.mongodb.auto-index-creation=false"
+    "spring.data.mongodb.auto-index-creation=false",
+    "logging.level.com.kuliginstepan.mongration=TRACE"
 })
 @EnableAutoConfiguration
 @ImportAutoConfiguration(MongrationAutoConfiguration.class)
 @Import({TestChangeLog.class, TestChangeLog1.class, TestChangeLog2.class})
 class ReactiveMongrationTest extends MongoIntegrationTest {
-
-    @Changelog
-    public static class TestChangeLog {
-
-        @Changeset(author = "Stepan", order = 1)
-        public Mono<Void> testChangeSet(ReactiveMongoTemplate template) {
-            return template.findById("LOCK", Document.class, "test_collection")
-                .hasElement()
-                .flatMap(hasElement -> {
-                    assertThat(hasElement).isTrue();
-                    return template.indexOps(MongrationTest.TestDocument.class).getIndexInfo()
-                        .hasElements()
-                        .flatMap(it -> {
-                            assertThat(it).isFalse();
-                            return template.save(new Document("key", "value"), "test").then();
-                        });
-                });
-        }
-
-    }
-    @Changelog
-    public static class TestChangeLog1 {
-
-        @Changeset(author = "Stepan", order = 1)
-        public Mono<Void> testChangeSet(ReactiveMongoTemplate template) {
-            return template.findById("LOCK", Document.class, "test_collection")
-                .hasElement()
-                .flatMap(hasElement -> {
-                    assertThat(hasElement).isTrue();
-                    return template.indexOps(MongrationTest.TestDocument.class).getIndexInfo()
-                        .hasElements()
-                        .flatMap(it -> {
-                            assertThat(it).isFalse();
-                            return template.save(new Document("key", "value"), "test").then();
-                        });
-                });
-        }
-
-    }
-
-    @Changelog
-    public static class TestChangeLog2 {
-
-        @Changeset(author = "Stepan", order = 1)
-        public Mono<Void> testChangeSet(ReactiveMongoTemplate template) {
-            return template.findById("LOCK", Document.class, "test_collection")
-                .hasElement()
-                .flatMap(hasElement -> {
-                    assertThat(hasElement).isTrue();
-                    return template.indexOps(MongrationTest.TestDocument.class).getIndexInfo()
-                        .hasElements()
-                        .flatMap(it -> {
-                            assertThat(it).isFalse();
-                            return template.save(new Document("key", "value"), "test").then();
-                        });
-                });
-        }
-
-    }
-
-    @org.springframework.data.mongodb.core.mapping.Document
-    public static class TestDocument {
-
-        @Id
-        private String id;
-        @Indexed(unique = true)
-        private String index;
-    }
 
     @Autowired
     private ReactiveMongoTemplate template;
@@ -133,5 +66,77 @@ class ReactiveMongrationTest extends MongoIntegrationTest {
         template.dropCollection("test_collection").block();
         template.dropCollection("test").block();
         template.dropCollection(TestDocument.class).block();
+    }
+
+    @Order(1)
+    @Changelog
+    public static class TestChangeLog {
+
+        @Changeset(author = "Stepan", order = 1)
+        public Mono<Void> testChangeSet(ReactiveMongoTemplate template) {
+            return template.findById("LOCK", Document.class, "test_collection")
+                .hasElement()
+                .flatMap(hasElement -> {
+                    assertThat(hasElement).isTrue();
+                    return template.indexOps(MongrationTest.TestDocument.class).getIndexInfo()
+                        .hasElements()
+                        .flatMap(it -> {
+                            assertThat(it).isFalse();
+                            return template.save(new Document("key", "value"), "test").then();
+                        });
+                });
+        }
+
+    }
+
+    @Order(2)
+    @Changelog
+    public static class TestChangeLog1 {
+
+        @Changeset(author = "Stepan", order = 1)
+        public Mono<Void> testChangeSet(ReactiveMongoTemplate template) {
+            return template.findById("LOCK", Document.class, "test_collection")
+                .hasElement()
+                .flatMap(hasElement -> {
+                    assertThat(hasElement).isTrue();
+                    return template.indexOps(MongrationTest.TestDocument.class).getIndexInfo()
+                        .hasElements()
+                        .flatMap(it -> {
+                            assertThat(it).isFalse();
+                            return template.save(new Document("key", "value"), "test").then();
+                        });
+                });
+        }
+
+    }
+
+    @Order(3)
+    @Changelog
+    public static class TestChangeLog2 {
+
+        @Changeset(author = "Stepan", order = 1)
+        public Mono<Void> testChangeSet(ReactiveMongoTemplate template) {
+            return template.findById("LOCK", Document.class, "test_collection")
+                .hasElement()
+                .flatMap(hasElement -> {
+                    assertThat(hasElement).isTrue();
+                    return template.indexOps(MongrationTest.TestDocument.class).getIndexInfo()
+                        .hasElements()
+                        .flatMap(it -> {
+                            assertThat(it).isFalse();
+                            return template.save(new Document("key", "value"), "test").then();
+                        });
+                });
+        }
+
+    }
+
+    @org.springframework.data.mongodb.core.mapping.Document
+    public static class TestDocument {
+
+        @Id
+        private String id;
+        @Indexed(unique = true)
+        private String index;
     }
 }

@@ -2,6 +2,10 @@ package com.kuliginstepan.mongration.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 import com.kuliginstepan.mongration.MongoIntegrationTest;
 import com.kuliginstepan.mongration.MongrationException;
@@ -12,11 +16,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
 @DataMongoTest
@@ -24,7 +30,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 class ReactiveLockServiceTest extends MongoIntegrationTest {
 
     private static final String COLLECTION_NAME = "test_collection";
-    @Autowired
+
+    @SpyBean
     private ReactiveMongoTemplate template;
     private LockService service;
 
@@ -57,6 +64,14 @@ class ReactiveLockServiceTest extends MongoIntegrationTest {
     void shouldNotAcquireLockIfLockHasBeenAlreadyAcquired() {
         service.acquireLock().block();
         assertThrows(MongrationException.class, () -> service.acquireLock().block());
+    }
+
+    @Test
+    void shouldWrapExceptionsIfLockReleasingFailed() {
+        doReturn(Mono.error(new RuntimeException("Sample error!")))
+            .when(template).remove(any(Query.class), anyString());
+
+        assertThrows(MongrationException.class, () -> service.releaseLock().block());
     }
 
     @AfterEach
