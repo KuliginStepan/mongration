@@ -13,9 +13,12 @@ import reactor.core.publisher.Mono;
 public class ReactiveMongration extends AbstractMongration {
 
     public ReactiveMongration(MongrationProperties properties, ReactiveMongoTemplate mongoTemplate) {
-        super(new ReactiveChangeSetService(properties, mongoTemplate),
+        super(
+            new ReactiveChangeSetService(properties, mongoTemplate),
             new ReactiveIndexCreatorImpl(mongoTemplate.getConverter().getMappingContext(), mongoTemplate::indexOps),
-            new ReactiveLockServiceImpl(properties.getChangelogsCollection(), mongoTemplate));
+            new ReactiveLockServiceImpl(properties.getChangelogsCollection(), mongoTemplate),
+            properties
+        );
     }
 
     @Override

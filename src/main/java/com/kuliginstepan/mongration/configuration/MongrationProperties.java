@@ -1,6 +1,7 @@
 package com.kuliginstepan.mongration.configuration;
 
 import com.kuliginstepan.mongration.AbstractMongration;
+import java.time.Duration;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -28,4 +29,14 @@ public class MongrationProperties {
      * Mode for running changesets
      */
     private MongrationMode mode = MongrationMode.AUTO;
+
+    /**
+     * Retry count for acquiring mongration lock
+     */
+    private int retryCount = 0;
+
+    /**
+     * Delay between retries on acquiring mongration lock
+     */
+    private Duration retryDelay = Duration.ofSeconds(4);
 }

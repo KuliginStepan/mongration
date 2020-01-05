@@ -2,6 +2,9 @@ package com.kuliginstepan.mongration.service.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 
 import com.kuliginstepan.mongration.MongoIntegrationTest;
 import com.kuliginstepan.mongration.MongrationException;
@@ -12,10 +15,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
@@ -24,7 +31,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 class LockServiceTest extends MongoIntegrationTest {
 
     private static final String COLLECTION_NAME = "test_collection";
-    @Autowired
+
+    @SpyBean
     private MongoTemplate template;
     private LockService service;
 
@@ -57,6 +65,14 @@ class LockServiceTest extends MongoIntegrationTest {
     void shouldNotAcquireLockIfLockHasBeenAlreadyAcquired() {
         service.acquireLock().block();
         assertThrows(MongrationException.class, () -> service.acquireLock().block());
+    }
+
+    @Test
+    void shouldWrapExceptionsIfLockReleasingFailed() {
+        doThrow(new RuntimeException("Sample error!"))
+            .when(template).remove(any(Query.class), anyString());
+
+        assertThrows(MongrationException.class, () -> service.releaseLock().block());
     }
 
     @AfterEach
