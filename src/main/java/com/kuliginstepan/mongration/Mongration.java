@@ -14,9 +14,12 @@ public class Mongration extends AbstractMongration {
 
     public Mongration(MongrationProperties properties, MongoTemplate template) {
 
-        super(new ChangeSetService(properties, template),
+        super(
+            new ChangeSetService(properties, template),
             new IndexCreatorImpl(template.getConverter().getMappingContext(), template),
-            new LockServiceImpl(properties.getChangelogsCollection(), template));
+            new LockServiceImpl(properties.getChangelogsCollection(), template),
+            properties
+        );
     }
 
     @Override
