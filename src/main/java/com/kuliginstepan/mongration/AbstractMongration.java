@@ -29,7 +29,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
@@ -52,7 +51,6 @@ public abstract class AbstractMongration {
         context = event.getApplicationContext();
         log.info("mongration started");
         findMigrationsForExecution()
-            .publishOn(Schedulers.immediate())
             .flatMap(tuple ->
                 withLockAcquired(Mono.defer(() -> executeMigration(tuple)))
             )
@@ -142,22 +140,22 @@ public abstract class AbstractMongration {
             .collectList();
     }
 
-    private Mono<Void> executeMigration(List<Tuple2<Object, List<Method>>> tuple) {
+    private Mono<Void> executeMigration(List<Tuple2<Object, List<Method>>> changelogs) {
         return indexCreator.createIndexes(ChangesetEntity.class)
             .then(Mono.defer(() -> {
                 log.info("started executing migrations");
-                return Flux.fromIterable(tuple)
-                    .flatMap(this::executeChangelogMigrations)
-                    .then();
-            }))
-            .then(Mono.defer(indexCreator::createIndexes));
+                changelogs.forEach(this::executeChangelogMigrations);
+                return indexCreator.createIndexes();
+            }));
     }
 
-    private Mono<Void> executeChangelogMigrations(Tuple2<Object, List<Method>> tuple) {
-        return Flux.fromIterable(tuple.getT2())
-            .filterWhen(changeset -> changesetService.needExecuteChangeset(changeset, tuple.getT1()))
-            .flatMap(changeset -> executeMigration(tuple.getT1(), changeset))
-            .then();
+    private void executeChangelogMigrations(Tuple2<Object, List<Method>> changelogTuple) {
+        changelogTuple.getT2().forEach(changeset -> {
+            Mono.just(changelogTuple.getT1())
+                .filterWhen(changelog -> changesetService.needExecuteChangeset(changeset, changelog))
+                .flatMap(changelog -> executeMigration(changelog, changeset))
+                .block();
+        });
     }
 
     private Mono<Void> executeMigration(Object changelog, Method changesetMethod) {
@@ -166,5 +164,4 @@ public abstract class AbstractMongration {
             .then(Mono.defer(() -> changesetService.saveChangeset(changesetMethod, changelog)))
             .onErrorMap(t -> new MongrationException("Could't execute changeset: " + changesetMethod.getName(), t));
     }
-
 }
