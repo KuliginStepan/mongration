@@ -170,6 +170,7 @@ class ConcurrentMongrationTest extends MongoIntegrationTest {
     }
 
     static void await(CountDownLatch latch, boolean shouldPass, long seconds) {
+        log.info("Awaiting {} to {}pass in {} seconds", latch, shouldPass ? "" : "not ", seconds);
         try {
             if (latch.await(seconds, TimeUnit.SECONDS) != shouldPass) {
                 throw new IllegalStateException(String.format(
