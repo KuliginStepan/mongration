@@ -136,7 +136,7 @@ public abstract class AbstractMongration {
                     .collectSortedList(Comparator.comparingInt(method -> extractChangeset(method).order()))
                     .map(changesets -> Tuples.of(changelog, changesets))
             )
-            .sort(AnnotationAwareOrderComparator.INSTANCE)
+            .sort((x, y) -> AnnotationAwareOrderComparator.INSTANCE.compare(x.getT1(), y.getT1()))
             .collectList();
     }
 
