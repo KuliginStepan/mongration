@@ -50,7 +50,7 @@ public class ExecutionOrderTest extends MongoIntegrationTest {
 
     @Order(2)
     @Changelog
-    public static class Changelog2 {
+    public static class Changelog1 {
 
         @Transactional
         @Changeset(author = "Evgenii", order = 4)
@@ -77,7 +77,7 @@ public class ExecutionOrderTest extends MongoIntegrationTest {
 
     @Order(1)
     @Changelog
-    public static class Changelog1 {
+    public static class Changelog2 {
 
         @Transactional
         @Changeset(author = "Evgenii", order = 1)
