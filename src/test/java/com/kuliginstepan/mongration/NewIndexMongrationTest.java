@@ -7,6 +7,7 @@ import com.kuliginstepan.mongration.annotation.Changelog;
 import com.kuliginstepan.mongration.annotation.Changeset;
 import com.kuliginstepan.mongration.configuration.MongrationAutoConfiguration;
 import com.kuliginstepan.mongration.entity.ChangesetEntity;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bson.Document;
@@ -74,7 +75,7 @@ class NewIndexMongrationTest extends MongoIntegrationTest {
             .withConfiguration(AutoConfigurations.of(MongoAutoConfiguration.class, MongoDataAutoConfiguration.class))
             .withPropertyValues("spring.data.mongodb.auto-index-creation=false")
             .run(context -> {
-                var template = context.getBean(MongoTemplate.class);
+                MongoTemplate template = context.getBean(MongoTemplate.class);
                 template.save(new TestDocument("1", null));
                 template.save(new TestDocument("2", null));
             });
@@ -82,8 +83,8 @@ class NewIndexMongrationTest extends MongoIntegrationTest {
 
     @Test
     void shouldExecuteChangeLogWithNewIndexes() {
-        var changesets = template.findAll(ChangesetEntity.class, "test_collection");
-        var documents = template.findAll(Document.class, "test");
+        List<ChangesetEntity> changesets = template.findAll(ChangesetEntity.class, "test_collection");
+        List<Document> documents = template.findAll(Document.class, "test");
         assertThat(template.indexOps(TestDocument.class).getIndexInfo()).hasSize(2);
     }
 

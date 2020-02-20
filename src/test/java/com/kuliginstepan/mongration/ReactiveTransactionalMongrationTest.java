@@ -54,7 +54,7 @@ class ReactiveTransactionalMongrationTest extends MongoTransactionalIntegrationT
             .withConfiguration(
                 AutoConfigurations.of(MongoReactiveAutoConfiguration.class, MongoReactiveDataAutoConfiguration.class))
             .run(context -> {
-                var template = context.getBean(ReactiveMongoTemplate.class);
+                ReactiveMongoTemplate template = context.getBean(ReactiveMongoTemplate.class);
                 assertThat(template.findAll(Document.class, "test").collectList().block().size()).isEqualTo(0);
                 assertThat(template.findAll(Document.class, "test_collection").collectList().block().size())
                     .isEqualTo(1);
@@ -68,7 +68,7 @@ class ReactiveTransactionalMongrationTest extends MongoTransactionalIntegrationT
             .withConfiguration(
                 AutoConfigurations.of(MongoReactiveAutoConfiguration.class, MongoReactiveDataAutoConfiguration.class))
             .run(context -> {
-                var template = context.getBean(ReactiveMongoTemplate.class);
+                ReactiveMongoTemplate template = context.getBean(ReactiveMongoTemplate.class);
                 template.dropCollection("test").block();
                 template.dropCollection("test_collection").block();
             });

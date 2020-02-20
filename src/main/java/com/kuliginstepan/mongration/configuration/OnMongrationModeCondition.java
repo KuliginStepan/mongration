@@ -6,9 +6,11 @@ import static com.kuliginstepan.mongration.configuration.MongrationMode.REACTIVE
 
 import com.kuliginstepan.mongration.annotation.Changelog;
 import com.kuliginstepan.mongration.utils.ChangelogUtils;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.condition.ConditionMessage;
+import org.springframework.boot.autoconfigure.condition.ConditionMessage.Builder;
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.context.annotation.ConditionContext;
@@ -20,10 +22,10 @@ public class OnMongrationModeCondition extends SpringBootCondition {
 
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        var attributes = metadata.getAnnotationAttributes(ConditionalOnMongrationMode.class.getName(), true);
-        var requiredType = (MongrationMode) attributes.get("mode");
-        var configuredType = context.getEnvironment().getProperty("mongration.mode", MongrationMode.class, AUTO);
-        var messageBuilder = ConditionMessage.forCondition(ConditionalOnMongrationMode.class);
+        Map<String, Object> attributes = metadata.getAnnotationAttributes(ConditionalOnMongrationMode.class.getName(), true);
+        MongrationMode requiredType = (MongrationMode) attributes.get("mode");
+        MongrationMode configuredType = context.getEnvironment().getProperty("mongration.mode", MongrationMode.class, AUTO);
+        Builder messageBuilder = ConditionMessage.forCondition(ConditionalOnMongrationMode.class);
 
         if (configuredType == requiredType) {
             return ConditionOutcome.match(messageBuilder.because("configured type of '" + configuredType.name()

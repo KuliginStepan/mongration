@@ -5,12 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 
 import com.kuliginstepan.mongration.MongoIntegrationTest;
 import com.kuliginstepan.mongration.MongrationException;
 import com.kuliginstepan.mongration.configuration.MongrationAutoConfiguration;
 import com.kuliginstepan.mongration.service.LockService;
+import java.util.List;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +43,7 @@ class ReactiveLockServiceTest extends MongoIntegrationTest {
     @Test
     void shouldAcquireLock() {
         service.acquireLock().block();
-        var documents = template.findAll(Document.class, COLLECTION_NAME).collectList().block();
+        List<Document> documents = template.findAll(Document.class, COLLECTION_NAME).collectList().block();
         assertThat(documents)
             .hasSize(1)
             .anySatisfy(lock -> {
@@ -56,7 +56,7 @@ class ReactiveLockServiceTest extends MongoIntegrationTest {
     void shouldReleaseLock() {
         service.acquireLock().block();
         service.releaseLock().block();
-        var documents = template.findAll(Document.class, COLLECTION_NAME).collectList().block();
+        List<Document> documents = template.findAll(Document.class, COLLECTION_NAME).collectList().block();
         assertThat(documents).isEmpty();
     }
 

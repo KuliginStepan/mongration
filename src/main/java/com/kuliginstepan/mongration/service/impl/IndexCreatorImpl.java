@@ -26,7 +26,7 @@ public class IndexCreatorImpl implements IndexCreator {
 
     @Override
     public Mono<Void> createIndexes(Class<?> type) {
-        var persistentEntity = mappingContext.getPersistentEntity(type);
+        MongoPersistentEntity persistentEntity = mappingContext.getPersistentEntity(type);
         return Flux.fromIterable(indexResolver.resolveIndexFor(type))
             .map(index -> indexOperationsProvider.indexOps(persistentEntity.getCollection()).ensureIndex(index))
             .then();

@@ -8,6 +8,7 @@ import com.kuliginstepan.mongration.entity.ChangesetEntity;
 import com.kuliginstepan.mongration.service.IndexCreator;
 import com.kuliginstepan.mongration.service.impl.IndexCreatorImplTest.TestConfig;
 import com.kuliginstepan.mongration.service.impl.IndexCreatorImplTest.TestDocument;
+import java.util.List;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -61,7 +62,7 @@ class ReactiveIndexCreatorImplTest extends MongoIntegrationTest {
     @Test
     void shouldCreateIndexForClass() {
         indexCreator.createIndexes(ChangesetEntity.class).block();
-        var indexes = Flux.from(template.getCollection("test_collection").listIndexes()).collectList().block();
+        List<Document> indexes = Flux.from(template.getCollection("test_collection").listIndexes()).collectList().block();
         assertThat(indexes)
             .hasSize(2)
             .anySatisfy(index -> {
@@ -76,7 +77,7 @@ class ReactiveIndexCreatorImplTest extends MongoIntegrationTest {
     @Test
     void shouldCreateIndex() {
         indexCreator.createIndexes().block();
-        var indexes = Flux.from(template.getCollection("test_collection").listIndexes()).collectList().block();
+        List<Document> indexes = Flux.from(template.getCollection("test_collection").listIndexes()).collectList().block();
         assertThat(indexes)
             .hasSize(2)
             .anySatisfy(index -> {
