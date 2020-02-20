@@ -8,6 +8,8 @@ import com.kuliginstepan.mongration.entity.ChangesetEntity;
 import com.kuliginstepan.mongration.service.IndexCreator;
 import com.kuliginstepan.mongration.service.impl.IndexCreatorImplTest.TestConfig;
 import com.kuliginstepan.mongration.service.impl.IndexCreatorImplTest.TestDocument;
+import java.util.List;
+import java.util.Spliterator;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.bson.Document;
@@ -62,8 +64,8 @@ class IndexCreatorImplTest extends MongoIntegrationTest {
     @Test
     void shouldCreateIndexForClass() {
         indexCreator.createIndexes(ChangesetEntity.class).block();
-        var spliterator = template.getCollection("test_collection").listIndexes().spliterator();
-        var indexes = StreamSupport.stream(spliterator, false).collect(Collectors.toList());
+        Spliterator<Document> spliterator = template.getCollection("test_collection").listIndexes().spliterator();
+        List<Document> indexes = StreamSupport.stream(spliterator, false).collect(Collectors.toList());
         assertThat(indexes)
             .hasSize(2)
             .anySatisfy(index -> {
@@ -78,8 +80,8 @@ class IndexCreatorImplTest extends MongoIntegrationTest {
     @Test
     void shouldCreateIndex() {
         indexCreator.createIndexes().block();
-        var spliterator = template.getCollection("test_collection").listIndexes().spliterator();
-        var indexes = StreamSupport.stream(spliterator, false).collect(Collectors.toList());
+        Spliterator<Document> spliterator = template.getCollection("test_collection").listIndexes().spliterator();
+        List<Document> indexes = StreamSupport.stream(spliterator, false).collect(Collectors.toList());
         assertThat(indexes)
             .hasSize(2)
             .anySatisfy(index -> {

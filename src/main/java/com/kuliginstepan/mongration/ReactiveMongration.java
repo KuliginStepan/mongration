@@ -23,7 +23,7 @@ public class ReactiveMongration extends AbstractMongration {
 
     @Override
     protected Mono<Object> executeChangeSetMethod(Object changelog, Method changesetMethod) {
-        var parameterBeans = Arrays.stream(changesetMethod.getParameterTypes())
+        Object[] parameterBeans = Arrays.stream(changesetMethod.getParameterTypes())
             .map(context::getBean)
             .toArray();
 

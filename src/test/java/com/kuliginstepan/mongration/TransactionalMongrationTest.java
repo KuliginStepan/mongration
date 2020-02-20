@@ -77,7 +77,7 @@ class TransactionalMongrationTest extends MongoTransactionalIntegrationTest {
             .withInitializer(new MongoTransactionalIntegrationTest.Initializer())
             .withConfiguration(AutoConfigurations.of(MongoAutoConfiguration.class, MongoDataAutoConfiguration.class))
             .run(context -> {
-                var template = context.getBean(MongoTemplate.class);
+                MongoTemplate template = context.getBean(MongoTemplate.class);
                 assertThat(template.findAll(Document.class, "test").size()).isEqualTo(0);
                 assertThat(template.findAll(Document.class, "test_collection").size()).isEqualTo(1);
             });
@@ -89,7 +89,7 @@ class TransactionalMongrationTest extends MongoTransactionalIntegrationTest {
             .withInitializer(new MongoTransactionalIntegrationTest.Initializer())
             .withConfiguration(AutoConfigurations.of(MongoAutoConfiguration.class, MongoDataAutoConfiguration.class))
             .run(context -> {
-                var template = context.getBean(MongoTemplate.class);
+                MongoTemplate template = context.getBean(MongoTemplate.class);
                 template.dropCollection("test");
                 template.dropCollection("test_collection");
             });

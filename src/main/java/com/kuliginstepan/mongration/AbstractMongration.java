@@ -97,7 +97,7 @@ public abstract class AbstractMongration {
     protected abstract Mono<Object> executeChangeSetMethod(Object changelog, Method changesetMethod);
 
     protected List<String> doValidateChangelog(Class<?> changelogClass) {
-        var changesetMethods = findChangeSetMethods(changelogClass);
+        List<Method> changesetMethods = findChangeSetMethods(changelogClass);
         long distinctOrderCount = changesetMethods.stream()
             .map(ChangelogUtils::extractChangeset)
             .map(Changeset::order)
@@ -111,7 +111,7 @@ public abstract class AbstractMongration {
                 .orElseGet(method::getName))
             .distinct()
             .count();
-        var errors = new ArrayList<String>();
+        List<String> errors = new ArrayList<String>();
         if (distinctOrderCount != changesetMethods.size()) {
             errors.add("Several change sets have same order");
         }
@@ -122,7 +122,7 @@ public abstract class AbstractMongration {
     }
 
     private Mono<Void> validateChangelog(Class<?> changelogClass) {
-        var errors = doValidateChangelog(changelogClass);
+        List<String> errors = doValidateChangelog(changelogClass);
         return errors.isEmpty() ? Mono.empty() : Mono.error(() -> new MongrationException(String.join(",", errors)));
     }
 

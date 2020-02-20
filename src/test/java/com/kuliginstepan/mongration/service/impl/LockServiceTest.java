@@ -10,14 +10,12 @@ import com.kuliginstepan.mongration.MongoIntegrationTest;
 import com.kuliginstepan.mongration.MongrationException;
 import com.kuliginstepan.mongration.configuration.MongrationAutoConfiguration;
 import com.kuliginstepan.mongration.service.LockService;
+import java.util.List;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -44,7 +42,7 @@ class LockServiceTest extends MongoIntegrationTest {
     @Test
     void shouldAcquireLock() {
         service.acquireLock().block();
-        var documents = template.findAll(Document.class, COLLECTION_NAME);
+        List<Document> documents = template.findAll(Document.class, COLLECTION_NAME);
         assertThat(documents)
             .hasSize(1)
             .anySatisfy(lock -> {
@@ -57,7 +55,7 @@ class LockServiceTest extends MongoIntegrationTest {
     void shouldReleaseLock() {
         service.acquireLock().block();
         service.releaseLock().block();
-        var documents = template.findAll(Document.class, COLLECTION_NAME);
+        List<Document> documents = template.findAll(Document.class, COLLECTION_NAME);
         assertThat(documents).isEmpty();
     }
 

@@ -9,6 +9,7 @@ import com.kuliginstepan.mongration.configuration.MongrationProperties;
 import com.kuliginstepan.mongration.entity.ChangesetEntity;
 import com.kuliginstepan.mongration.service.impl.ChangesetServiceIntegrationTest.TestConfig;
 import java.lang.reflect.Method;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,7 +52,7 @@ class ChangesetServiceIntegrationTest extends MongoIntegrationTest {
     @Test
     void shouldSaveChangeSet() {
         service.saveChangeset(CHANGE_SET, CHANGE_LOG).block();
-        var entities = template.findAll(ChangesetEntity.class);
+        List<ChangesetEntity> entities = template.findAll(ChangesetEntity.class);
         assertThat(entities)
             .hasSize(1)
             .anySatisfy(entity -> {
@@ -64,8 +65,8 @@ class ChangesetServiceIntegrationTest extends MongoIntegrationTest {
     @Test
     void shouldFindExistingChangeSet() {
         service.saveChangeset(CHANGE_SET, CHANGE_LOG).block();
-        var isExistingChangeSet = service.isExistingChangeset(CHANGE_SET, CHANGE_LOG).block();
-        var needExecuteChangeSet = service.needExecuteChangeset(CHANGE_SET, CHANGE_LOG).block();
+        boolean isExistingChangeSet = service.isExistingChangeset(CHANGE_SET, CHANGE_LOG).block();
+        boolean needExecuteChangeSet = service.needExecuteChangeset(CHANGE_SET, CHANGE_LOG).block();
 
         assertThat(isExistingChangeSet).isTrue();
         assertThat(needExecuteChangeSet).isFalse();
@@ -74,8 +75,8 @@ class ChangesetServiceIntegrationTest extends MongoIntegrationTest {
 
     @Test
     void shouldNotFindNonExistingChangeSet() {
-        var isExistingChangeSet = service.isExistingChangeset(CHANGE_SET, CHANGE_LOG).block();
-        var needExecuteChangeSet = service.needExecuteChangeset(CHANGE_SET, CHANGE_LOG).block();
+        boolean isExistingChangeSet = service.isExistingChangeset(CHANGE_SET, CHANGE_LOG).block();
+        boolean needExecuteChangeSet = service.needExecuteChangeset(CHANGE_SET, CHANGE_LOG).block();
         assertThat(isExistingChangeSet).isFalse();
         assertThat(needExecuteChangeSet).isTrue();
     }

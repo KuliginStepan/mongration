@@ -7,6 +7,7 @@ import com.kuliginstepan.mongration.annotation.Changelog;
 import com.kuliginstepan.mongration.annotation.Changeset;
 import com.kuliginstepan.mongration.configuration.MongrationAutoConfiguration;
 import com.kuliginstepan.mongration.entity.ChangesetEntity;
+import java.util.List;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -58,8 +59,8 @@ class MongrationTest extends MongoIntegrationTest {
 
     @Test
     void shouldExecuteChangeLog() {
-        var changesets = template.findAll(ChangesetEntity.class, "test_collection");
-        var documents = template.findAll(Document.class, "test");
+        List<ChangesetEntity> changesets = template.findAll(ChangesetEntity.class, "test_collection");
+        List<Document> documents = template.findAll(Document.class, "test");
         assertThat(template.indexOps(TestDocument.class).getIndexInfo()).hasSize(2);
         assertThat(changesets)
             .hasSize(1)
