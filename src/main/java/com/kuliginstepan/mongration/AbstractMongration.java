@@ -1,9 +1,5 @@
 package com.kuliginstepan.mongration;
 
-import static com.kuliginstepan.mongration.utils.ChangelogUtils.extractChangeset;
-import static com.kuliginstepan.mongration.utils.ChangelogUtils.findChangeSetMethods;
-import static com.kuliginstepan.mongration.utils.ChangelogUtils.getChangelogClass;
-
 import com.kuliginstepan.mongration.annotation.Changelog;
 import com.kuliginstepan.mongration.annotation.Changeset;
 import com.kuliginstepan.mongration.configuration.MongrationProperties;
@@ -12,13 +8,6 @@ import com.kuliginstepan.mongration.service.AbstractChangeSetService;
 import com.kuliginstepan.mongration.service.IndexCreator;
 import com.kuliginstepan.mongration.service.LockService;
 import com.kuliginstepan.mongration.utils.ChangelogUtils;
-import java.lang.reflect.Method;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -31,6 +20,17 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
+
+import java.lang.reflect.Method;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+
+import static com.kuliginstepan.mongration.utils.ChangelogUtils.*;
 
 
 /**
@@ -142,20 +142,18 @@ public abstract class AbstractMongration {
 
     private Mono<Void> executeMigration(List<Tuple2<Object, List<Method>>> changelogs) {
         return indexCreator.createIndexes(ChangesetEntity.class)
-            .then(Mono.defer(() -> {
-                log.info("started executing migrations");
-                changelogs.forEach(this::executeChangelogMigrations);
-                return indexCreator.createIndexes();
-            }));
+            .log("started executing migrations")
+            .thenMany(Flux.fromIterable(changelogs))
+            .concatMap(this::executeChangelogMigrations)
+            .then(indexCreator.createIndexes());
     }
 
-    private void executeChangelogMigrations(Tuple2<Object, List<Method>> changelogTuple) {
-        changelogTuple.getT2().forEach(changeset -> {
-            Mono.just(changelogTuple.getT1())
-                .filterWhen(changelog -> changesetService.needExecuteChangeset(changeset, changelog))
-                .flatMap(changelog -> executeMigration(changelog, changeset))
-                .block();
-        });
+    private Flux<Void> executeChangelogMigrations(Tuple2<Object, List<Method>> changelogTuple) {
+        Object changelog = changelogTuple.getT1();
+
+        return Flux.fromIterable(changelogTuple.getT2())
+            .filterWhen(changeset -> changesetService.needExecuteChangeset(changeset, changelog))
+            .concatMap(changeset -> executeMigration(changelog, changeset));
     }
 
     private Mono<Void> executeMigration(Object changelog, Method changesetMethod) {
