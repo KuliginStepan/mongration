@@ -23,6 +23,8 @@ repositories {
 
 dependencies {
     api platform('org.springframework.boot:spring-boot-starter-parent:2.3.0.RELEASE')
+    implementation platform('org.springframework.boot:spring-boot-starter-parent:2.3.0.RELEASE')
+    testImplementation platform('org.springframework.boot:spring-boot-starter-parent:2.3.0.RELEASE')
     annotationProcessor platform('org.springframework.boot:spring-boot-starter-parent:2.3.0.RELEASE')
     testAnnotationProcessor platform('org.springframework.boot:spring-boot-starter-parent:2.3.0.RELEASE')
 
