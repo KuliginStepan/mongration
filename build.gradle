@@ -21,21 +21,9 @@ repositories {
     mavenCentral()
 }
 
-configurations {
-    globalPlatforms {
-        canBeResolved = false
-        canBeConsumed = false
-    }
-}
-
-configurations.all {
-    if (canBeResolved) {
-        extendsFrom(configurations.globalPlatforms)
-    }
-}
-
 dependencies {
-    globalPlatforms platform('org.springframework.boot:spring-boot-starter-parent:2.3.0.RELEASE')
+    api platform('org.springframework.boot:spring-boot-starter-parent:2.3.0.RELEASE')
+    annotationProcessor platform('org.springframework.boot:spring-boot-starter-parent:2.3.0.RELEASE')
 
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     api 'io.projectreactor:reactor-core'
