@@ -6,24 +6,12 @@ nexusStaging {
     password = nexusPassword
 }
 
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allJava
-    archiveClassifier = 'sources'
-}
-
-task javadocJar(type: Jar) {
-    from javadoc
-    archiveClassifier = 'javadoc'
-}
-
 publishing {
     publications {
         snapshot(MavenPublication) {
             artifactId = project.name
             version project.version + '-SNAPSHOT'
             from components.java
-            artifact sourcesJar
-            artifact javadocJar
             versionMapping {
                 usage('java-api') {
                     fromResolutionOf('runtimeClasspath')
@@ -59,8 +47,6 @@ publishing {
         release(MavenPublication) {
             artifactId = project.name
             from components.java
-            artifact sourcesJar
-            artifact javadocJar
             versionMapping {
                 usage('java-api') {
                     fromResolutionOf('runtimeClasspath')
