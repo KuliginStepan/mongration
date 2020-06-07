@@ -11,13 +11,15 @@ import com.kuliginstepan.mongration.configuration.MongrationAutoConfiguration;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoReactiveAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.reactive.HttpHandlerAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.reactive.ReactiveWebServerFactoryAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
@@ -29,12 +31,19 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
-@SpringBootConfiguration
-@ImportAutoConfiguration({TransactionAutoConfiguration.class, MongoReactiveAutoConfiguration.class,
+//@SpringBootConfiguration
+@ImportAutoConfiguration({
+    TransactionAutoConfiguration.class,
+    MongoReactiveAutoConfiguration.class,
     MongoReactiveDataAutoConfiguration.class,
-    PropertyPlaceholderAutoConfiguration.class, MongrationAutoConfiguration.class})
+    PropertyPlaceholderAutoConfiguration.class,
+    MongrationAutoConfiguration.class,
+    ReactiveWebServerFactoryAutoConfiguration.class,
+    HttpHandlerAutoConfiguration.class,
+    WebFluxAutoConfiguration.class
+})
 @Import({TestChangeLog.class, TestConfig.class})
-class ReactiveTransactionalMongrationTest extends MongoTransactionalIntegrationTest {
+class ReactiveTransactionalMongrationTest extends MongoIntegrationTest {
 
     @Test
     void shouldRollbackTransactionalChangeSet() {
@@ -44,7 +53,8 @@ class ReactiveTransactionalMongrationTest extends MongoTransactionalIntegrationT
                 .properties(
                     "mongration.mode=reactive",
                     "mongration.changelogsCollection=test_collection",
-                    "logging.level.com.kuliginstepan.mongration=TRACE"
+                    "logging.level.com.kuliginstepan.mongration=TRACE",
+                    "server.port=0"
                 )
                 .sources(ReactiveTransactionalMongrationTest.class)
                 .build().run();

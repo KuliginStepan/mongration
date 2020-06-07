@@ -11,29 +11,37 @@ import com.kuliginstepan.mongration.configuration.MongrationAutoConfiguration;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.reactive.HttpHandlerAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.reactive.ReactiveWebServerFactoryAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.mongodb.MongoDbFactory;
+import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootConfiguration
-@ImportAutoConfiguration({TransactionAutoConfiguration.class, MongoAutoConfiguration.class,
+@ImportAutoConfiguration({
+    TransactionAutoConfiguration.class,
+    MongoAutoConfiguration.class,
     MongoDataAutoConfiguration.class,
-    PropertyPlaceholderAutoConfiguration.class, MongrationAutoConfiguration.class})
+    PropertyPlaceholderAutoConfiguration.class,
+    MongrationAutoConfiguration.class,
+    ReactiveWebServerFactoryAutoConfiguration.class,
+    HttpHandlerAutoConfiguration.class,
+    WebFluxAutoConfiguration.class
+})
 @Import({TestChangeLog.class, TestConfig.class})
-class TransactionalMongrationTest extends MongoTransactionalIntegrationTest {
+class TransactionalMongrationTest extends MongoIntegrationTest {
 
     @Changelog
     public static class TestChangeLog {
@@ -59,7 +67,7 @@ class TransactionalMongrationTest extends MongoTransactionalIntegrationTest {
     public static class TestConfig {
 
         @Bean
-        public MongoTransactionManager mongoTransactionManager(MongoDbFactory mongoDbFactory) {
+        public MongoTransactionManager mongoTransactionManager(MongoDatabaseFactory mongoDbFactory) {
             return new MongoTransactionManager(mongoDbFactory);
         }
     }
@@ -68,13 +76,17 @@ class TransactionalMongrationTest extends MongoTransactionalIntegrationTest {
     void shouldRollbackTransactionalChangeSet() {
         assertThrows(MongrationException.class, () -> {
             new SpringApplicationBuilder()
-                .initializers(new MongoTransactionalIntegrationTest.Initializer())
-                .properties("mongration.mode=imperative", "mongration.changelogsCollection=test_collection")
+                .initializers(new Initializer())
+                .properties(
+                    "mongration.mode=imperative",
+                    "mongration.changelogsCollection=test_collection",
+                    "server.port=0"
+                )
                 .sources(TransactionalMongrationTest.class)
                 .build().run();
         });
         new ApplicationContextRunner()
-            .withInitializer(new MongoTransactionalIntegrationTest.Initializer())
+            .withInitializer(new Initializer())
             .withConfiguration(AutoConfigurations.of(MongoAutoConfiguration.class, MongoDataAutoConfiguration.class))
             .run(context -> {
                 MongoTemplate template = context.getBean(MongoTemplate.class);
@@ -86,7 +98,7 @@ class TransactionalMongrationTest extends MongoTransactionalIntegrationTest {
     @AfterEach
     void tearDown() {
         new ApplicationContextRunner()
-            .withInitializer(new MongoTransactionalIntegrationTest.Initializer())
+            .withInitializer(new Initializer())
             .withConfiguration(AutoConfigurations.of(MongoAutoConfiguration.class, MongoDataAutoConfiguration.class))
             .run(context -> {
                 MongoTemplate template = context.getBean(MongoTemplate.class);

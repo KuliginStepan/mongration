@@ -6,19 +6,21 @@ import com.kuliginstepan.mongration.service.impl.IndexCreatorImpl;
 import com.kuliginstepan.mongration.service.impl.LockServiceImpl;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.util.ReflectionUtils;
 import reactor.core.publisher.Mono;
 
 public class Mongration extends AbstractMongration {
 
-    public Mongration(MongrationProperties properties, MongoTemplate template) {
+    public Mongration(MongrationProperties properties, MongoTemplate template, ApplicationContext context) {
 
         super(
             new ChangeSetService(properties, template),
             new IndexCreatorImpl(template.getConverter().getMappingContext(), template),
             new LockServiceImpl(properties.getChangelogsCollection(), template),
-            properties
+            properties,
+            context
         );
     }
 

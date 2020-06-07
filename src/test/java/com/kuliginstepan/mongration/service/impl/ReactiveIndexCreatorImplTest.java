@@ -6,8 +6,9 @@ import com.kuliginstepan.mongration.MongoIntegrationTest;
 import com.kuliginstepan.mongration.configuration.MongrationProperties;
 import com.kuliginstepan.mongration.entity.ChangesetEntity;
 import com.kuliginstepan.mongration.service.IndexCreator;
-import com.kuliginstepan.mongration.service.impl.IndexCreatorImplTest.TestConfig;
 import com.kuliginstepan.mongration.service.impl.IndexCreatorImplTest.TestDocument;
+import com.kuliginstepan.mongration.service.impl.ReactiveIndexCreatorImplTest.TestConfig;
+import com.mongodb.reactivestreams.client.MongoCollection;
 import java.util.List;
 import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
@@ -24,9 +25,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.index.ReactiveIndexOperationsProvider;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import reactor.core.publisher.Flux;
 
 @ExtendWith(SpringExtension.class)
 @DataMongoTest(properties = {
@@ -43,8 +42,8 @@ class ReactiveIndexCreatorImplTest extends MongoIntegrationTest {
     public static class TestConfig {
 
         @Bean
-        public IndexCreator indexCreator(MappingContext mappingContext, ReactiveIndexOperationsProvider provider) {
-            return new ReactiveIndexCreatorImpl(mappingContext, provider);
+        public IndexCreator indexCreator(MappingContext mappingContext, ReactiveMongoTemplate provider) {
+            return new ReactiveIndexCreatorImpl(mappingContext, provider::indexOps);
         }
 
         @Bean
@@ -62,7 +61,14 @@ class ReactiveIndexCreatorImplTest extends MongoIntegrationTest {
     @Test
     void shouldCreateIndexForClass() {
         indexCreator.createIndexes(ChangesetEntity.class).block();
-        List<Document> indexes = Flux.from(template.getCollection("test_collection").listIndexes()).collectList().block();
+        template.getCollection("test_collection")
+            .flatMapMany(MongoCollection::listIndexes)
+            .collectList()
+            .block();
+        List<Document> indexes = template.getCollection("test_collection")
+            .flatMapMany(MongoCollection::listIndexes)
+            .collectList()
+            .block();
         assertThat(indexes)
             .hasSize(2)
             .anySatisfy(index -> {
@@ -77,7 +83,10 @@ class ReactiveIndexCreatorImplTest extends MongoIntegrationTest {
     @Test
     void shouldCreateIndex() {
         indexCreator.createIndexes().block();
-        List<Document> indexes = Flux.from(template.getCollection("test_collection").listIndexes()).collectList().block();
+        List<Document> indexes = template.getCollection("test_collection")
+            .flatMapMany(MongoCollection::listIndexes)
+            .collectList()
+            .block();
         assertThat(indexes)
             .hasSize(2)
             .anySatisfy(index -> {
@@ -87,7 +96,10 @@ class ReactiveIndexCreatorImplTest extends MongoIntegrationTest {
                         .containsEntry("changelog", 1);
                 });
             });
-        indexes = Flux.from(template.getCollection("testDocument").listIndexes()).collectList().block();
+        indexes = template.getCollection("testDocument")
+            .flatMapMany(MongoCollection::listIndexes)
+            .collectList()
+            .block();
         assertThat(indexes)
             .hasSize(2)
             .anySatisfy(index -> {

@@ -1,7 +1,6 @@
 plugins {
-    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'maven-publish'
-    id 'io.codearte.nexus-staging' version '0.20.0'
+    id 'io.codearte.nexus-staging' version '0.21.2'
     id 'java-library'
     id 'signing'
     id 'jacoco'
@@ -16,20 +15,28 @@ java {
 }
 
 group = 'com.github.kuliginstepan'
-version = '1.2.0'
+version = '1.3.0'
 
 repositories {
     mavenCentral()
-    maven { url 'https://repo.spring.io/milestone' }
 }
 
-dependencyManagement {
-    imports {
-        mavenBom 'org.springframework.boot:spring-boot-starter-parent:2.2.2.RELEASE'
+configurations {
+    globalPlatforms {
+        canBeResolved = false
+        canBeConsumed = false
+    }
+}
+
+configurations.all {
+    if (canBeResolved) {
+        extendsFrom(configurations.globalPlatforms)
     }
 }
 
 dependencies {
+    globalPlatforms platform('org.springframework.boot:spring-boot-starter-parent:2.3.0.RELEASE')
+
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     api 'io.projectreactor:reactor-core'
 
@@ -46,9 +53,12 @@ dependencies {
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
-    testImplementation 'org.testcontainers:junit-jupiter:1.12.1'
+    testImplementation 'org.testcontainers:junit-jupiter:1.14.3'
+    testImplementation 'org.testcontainers:mongodb:1.14.3'
     testImplementation 'org.springframework.data:spring-data-mongodb'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webflux'
     testImplementation 'org.mongodb:mongodb-driver-reactivestreams'
+    testImplementation 'org.mongodb:mongodb-driver-sync'
     testImplementation 'io.projectreactor:reactor-core'
 }
 
