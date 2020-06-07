@@ -22,11 +22,11 @@ repositories {
 }
 
 dependencies {
-    api platform('org.springframework.boot:spring-boot-starter-parent:2.3.0.RELEASE')
-    implementation platform('org.springframework.boot:spring-boot-starter-parent:2.3.0.RELEASE')
-    testImplementation platform('org.springframework.boot:spring-boot-starter-parent:2.3.0.RELEASE')
-    annotationProcessor platform('org.springframework.boot:spring-boot-starter-parent:2.3.0.RELEASE')
-    testAnnotationProcessor platform('org.springframework.boot:spring-boot-starter-parent:2.3.0.RELEASE')
+    api platform('org.springframework.boot:spring-boot-dependencies:2.3.0.RELEASE')
+    implementation platform('org.springframework.boot:spring-boot-dependencies:2.3.0.RELEASE')
+    testImplementation platform('org.springframework.boot:spring-boot-dependencies:2.3.0.RELEASE')
+    annotationProcessor platform('org.springframework.boot:spring-boot-dependencies:2.3.0.RELEASE')
+    testAnnotationProcessor platform('org.springframework.boot:spring-boot-dependencies:2.3.0.RELEASE')
 
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     api 'io.projectreactor:reactor-core'
