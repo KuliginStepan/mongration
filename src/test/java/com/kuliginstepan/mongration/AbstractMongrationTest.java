@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationContext;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
@@ -93,11 +94,9 @@ class AbstractMongrationTest {
     private static class FakeMongration extends AbstractMongration {
 
         public FakeMongration(AbstractChangeSetService changesetService,
-            IndexCreator indexCreator,
-            LockService lockService,
-            MongrationProperties properties
-        ) {
-            super(changesetService, indexCreator, lockService, properties);
+                              IndexCreator indexCreator, LockService lockService,
+                              MongrationProperties properties, ApplicationContext context) {
+            super(changesetService, indexCreator, lockService, properties, context);
         }
 
         @Override
