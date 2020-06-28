@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -26,11 +25,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.util.StringUtils;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
+import reactor.util.retry.Retry;
 
 
 /**
@@ -44,18 +43,19 @@ public abstract class AbstractMongration {
     private final IndexCreator indexCreator;
     private final LockService lockService;
     private final MongrationProperties properties;
-    protected ApplicationContext context;
+    protected final ApplicationContext context;
 
     @EventListener
     public void start(ApplicationReadyEvent event) {
-        context = event.getApplicationContext();
-        log.info("mongration started");
-        findMigrationsForExecution()
-            .flatMap(tuple ->
-                withLockAcquired(Mono.defer(() -> executeMigration(tuple)))
-            )
-            .block();
-        log.info("mongration finished its work");
+        if (context.equals(event.getApplicationContext())) {
+            log.info("mongration started");
+            findMigrationsForExecution()
+                .flatMap(tuple ->
+                    withLockAcquired(Mono.defer(() -> executeMigration(tuple)))
+                )
+                .block();
+            log.info("mongration finished its work");
+        }
     }
 
     protected Mono<Void> withLockAcquired(Mono<Void> action) {
@@ -75,23 +75,13 @@ public abstract class AbstractMongration {
     }
 
     protected Mono<Void> acquireLock() {
-        AtomicInteger counter = new AtomicInteger(0);
         return Mono.defer(lockService::acquireLock)
-            .retryWhen(companion -> companion
-                .zipWith(
-                    Flux.range(1, properties.getRetryCount() + 1),
-                    this::handleFailedTry
-                )
-                .flatMap(index -> Mono.delay(properties.getRetryDelay()))
-                .doOnNext(s -> log.warn("mongration retried {} time at {}", counter.incrementAndGet(), LocalTime.now()))
+            .retryWhen(
+                Retry.fixedDelay(properties.getRetryCount(), properties.getRetryDelay())
+                    .filter(e -> e instanceof MongrationException)
+                    .doBeforeRetry(
+                        retry -> log.warn("mongration retried {} time at {}", retry.totalRetries(), LocalTime.now()))
             );
-    }
-
-    private Integer handleFailedTry(Throwable error, Integer tryNumber) {
-        if (!(error instanceof MongrationException) || tryNumber > properties.getRetryCount()) {
-            throw Exceptions.propagate(error);
-        }
-        return tryNumber;
     }
 
     protected abstract Mono<Object> executeChangeSetMethod(Object changelog, Method changesetMethod);
@@ -111,7 +101,7 @@ public abstract class AbstractMongration {
                 .orElseGet(method::getName))
             .distinct()
             .count();
-        List<String> errors = new ArrayList<String>();
+        List<String> errors = new ArrayList<>();
         if (distinctOrderCount != changesetMethods.size()) {
             errors.add("Several change sets have same order");
         }
@@ -142,20 +132,18 @@ public abstract class AbstractMongration {
 
     private Mono<Void> executeMigration(List<Tuple2<Object, List<Method>>> changelogs) {
         return indexCreator.createIndexes(ChangesetEntity.class)
-            .then(Mono.defer(() -> {
-                log.info("started executing migrations");
-                changelogs.forEach(this::executeChangelogMigrations);
-                return indexCreator.createIndexes();
-            }));
+            .log("started executing migrations")
+            .thenMany(Flux.fromIterable(changelogs))
+            .concatMap(this::executeChangelogMigrations)
+            .then(indexCreator.createIndexes());
     }
 
-    private void executeChangelogMigrations(Tuple2<Object, List<Method>> changelogTuple) {
-        changelogTuple.getT2().forEach(changeset -> {
-            Mono.just(changelogTuple.getT1())
-                .filterWhen(changelog -> changesetService.needExecuteChangeset(changeset, changelog))
-                .flatMap(changelog -> executeMigration(changelog, changeset))
-                .block();
-        });
+    private Flux<Void> executeChangelogMigrations(Tuple2<Object, List<Method>> changelogTuple) {
+        Object changelog = changelogTuple.getT1();
+
+        return Flux.fromIterable(changelogTuple.getT2())
+            .filterWhen(changeset -> changesetService.needExecuteChangeset(changeset, changelog))
+            .concatMap(changeset -> executeMigration(changelog, changeset));
     }
 
     private Mono<Void> executeMigration(Object changelog, Method changesetMethod) {

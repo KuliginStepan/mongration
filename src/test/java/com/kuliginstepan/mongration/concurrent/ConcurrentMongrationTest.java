@@ -32,6 +32,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -147,6 +148,7 @@ class ConcurrentMongrationTest extends MongoIntegrationTest {
                     "mongration.retryDelay=1s",
                     "mongration.retryCount=" + RETRY_COUNT,
                     "spring.data.mongodb.auto-index-creation=false",
+                    "server.port=0",
                     "node=" + node,
                     "logging.level.com.kuliginstepan.mongration=TRACE"
                 )
@@ -196,8 +198,10 @@ class ConcurrentMongrationTest extends MongoIntegrationTest {
         @Value("${node}")
         private String node;
 
-        public SpyingReactiveMongration(MongrationProperties properties, ReactiveMongoTemplate mongoTemplate) {
-            super(properties, mongoTemplate);
+        public SpyingReactiveMongration(MongrationProperties properties,
+                                        ReactiveMongoTemplate mongoTemplate,
+                                        ApplicationContext context) {
+            super(properties, mongoTemplate, context);
         }
 
         @Override

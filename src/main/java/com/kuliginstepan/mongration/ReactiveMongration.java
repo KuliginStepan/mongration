@@ -6,18 +6,20 @@ import com.kuliginstepan.mongration.service.impl.ReactiveIndexCreatorImpl;
 import com.kuliginstepan.mongration.service.impl.ReactiveLockServiceImpl;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.util.ReflectionUtils;
 import reactor.core.publisher.Mono;
 
 public class ReactiveMongration extends AbstractMongration {
 
-    public ReactiveMongration(MongrationProperties properties, ReactiveMongoTemplate mongoTemplate) {
+    public ReactiveMongration(MongrationProperties properties, ReactiveMongoTemplate mongoTemplate, ApplicationContext context) {
         super(
             new ReactiveChangeSetService(properties, mongoTemplate),
             new ReactiveIndexCreatorImpl(mongoTemplate.getConverter().getMappingContext(), mongoTemplate::indexOps),
             new ReactiveLockServiceImpl(properties.getChangelogsCollection(), mongoTemplate),
-            properties
+            properties,
+            context
         );
     }
 

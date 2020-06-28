@@ -6,11 +6,8 @@ import com.kuliginstepan.mongration.NewIndexMongrationTest.TestChangeLog;
 import com.kuliginstepan.mongration.annotation.Changelog;
 import com.kuliginstepan.mongration.annotation.Changeset;
 import com.kuliginstepan.mongration.configuration.MongrationAutoConfiguration;
-import com.kuliginstepan.mongration.entity.ChangesetEntity;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.bson.Document;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -71,7 +68,7 @@ class NewIndexMongrationTest extends MongoIntegrationTest {
     @BeforeAll
     static void setUp() {
         new ApplicationContextRunner()
-            .withInitializer(new MongoIntegrationTest.Initializer())
+            .withInitializer(new Initializer())
             .withConfiguration(AutoConfigurations.of(MongoAutoConfiguration.class, MongoDataAutoConfiguration.class))
             .withPropertyValues("spring.data.mongodb.auto-index-creation=false")
             .run(context -> {
@@ -83,8 +80,6 @@ class NewIndexMongrationTest extends MongoIntegrationTest {
 
     @Test
     void shouldExecuteChangeLogWithNewIndexes() {
-        List<ChangesetEntity> changesets = template.findAll(ChangesetEntity.class, "test_collection");
-        List<Document> documents = template.findAll(Document.class, "test");
         assertThat(template.indexOps(TestDocument.class).getIndexInfo()).hasSize(2);
     }
 

@@ -1,30 +1,33 @@
 package com.kuliginstepan.mongration;
 
+import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.containers.GenericContainer;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-@ContextConfiguration(classes = MongoIntegrationTest.class, initializers = MongoIntegrationTest.Initializer.class)
+@Testcontainers
+@SpringBootConfiguration
 public class MongoIntegrationTest {
 
-    static final GenericContainer MONGO_DB;
+    @Container
+    private static final MongoDBContainer MONGO = new MongoDBContainer("mongo:4.2");
 
-    static {
-        MONGO_DB = new GenericContainer<>("mongo:4.2")
-            .withEnv("MONGO_INITDB_DATABASE", "test")
-            .withExposedPorts(27017);
-        MONGO_DB.start();
+    @DynamicPropertySource
+    static void mongoProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", MONGO::getReplicaSetUrl);
     }
 
     public static class Initializer
         implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
         public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            TestPropertyValues.of(
-                String.format("spring.data.mongodb.uri=mongodb://localhost:%d/test", MONGO_DB.getFirstMappedPort())
-            ).applyTo(configurableApplicationContext.getEnvironment());
+            TestPropertyValues.of("spring.data.mongodb.uri=" + MONGO.getReplicaSetUrl())
+                .applyTo(configurableApplicationContext.getEnvironment());
         }
     }
 }
