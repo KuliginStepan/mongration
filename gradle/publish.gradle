@@ -6,14 +6,28 @@ nexusStaging {
     password = nexusPassword
 }
 
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allJava
-    archiveClassifier = 'sources'
-}
-
-task javadocJar(type: Jar) {
-    from javadoc
-    archiveClassifier = 'javadoc'
+def pomDefinition = {
+    name = 'Mongration'
+    description = 'MongoDB data migration tool for Spring Boot projects'
+    url = 'https://github.com/KuliginStepan/mongration'
+    developers {
+        developer {
+            id = 'kuliginstepan'
+            name = 'Stepan Kuligin'
+            email = 'kuligin_stepan@mail.ru'
+        }
+    }
+    licenses {
+        license {
+            name = 'The Apache License, Version 2.0'
+            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+        }
+    }
+    scm {
+        connection = 'scm:git:git://github.com/KuliginStepan/mongration.git'
+        developerConnection = 'scm:git:ssh://github.com/KuliginStepan/mongration.git'
+        url = 'https://github.com/KuliginStepan/mongration'
+    }
 }
 
 publishing {
@@ -22,8 +36,6 @@ publishing {
             artifactId = project.name
             version project.version + '-SNAPSHOT'
             from components.java
-            artifact sourcesJar
-            artifact javadocJar
             versionMapping {
                 usage('java-api') {
                     fromResolutionOf('runtimeClasspath')
@@ -32,35 +44,11 @@ publishing {
                     fromResolutionResult()
                 }
             }
-            pom {
-                name = 'Mongration'
-                description = 'MongoDB data migration tool for Spring Boot projects'
-                url = 'https://github.com/KuliginStepan/mongration'
-                developers {
-                    developer {
-                        id = 'kuliginstepan'
-                        name = 'Stepan Kuligin'
-                        email = 'kuligin_stepan@mail.ru'
-                    }
-                }
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git://github.com/KuliginStepan/mongration.git'
-                    developerConnection = 'scm:git:ssh://github.com/KuliginStepan/mongration.git'
-                    url = 'https://github.com/KuliginStepan/mongration'
-                }
-            }
+            pom(pomDefinition)
         }
         release(MavenPublication) {
             artifactId = project.name
             from components.java
-            artifact sourcesJar
-            artifact javadocJar
             versionMapping {
                 usage('java-api') {
                     fromResolutionOf('runtimeClasspath')
@@ -69,29 +57,7 @@ publishing {
                     fromResolutionResult()
                 }
             }
-            pom {
-                name = 'Mongration'
-                description = 'MongoDB data migration tool for Spring Boot projects'
-                url = 'https://github.com/KuliginStepan/mongration'
-                developers {
-                    developer {
-                        id = 'kuliginstepan'
-                        name = 'Stepan Kuligin'
-                        email = 'kuligin_stepan@mail.ru'
-                    }
-                }
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git://github.com/KuliginStepan/mongration.git'
-                    developerConnection = 'scm:git:ssh://github.com/KuliginStepan/mongration.git'
-                    url = 'https://github.com/KuliginStepan/mongration'
-                }
-            }
+            pom(pomDefinition)
         }
     }
     repositories {
@@ -115,5 +81,9 @@ publishing {
 }
 
 signing {
+    def signingKeyId = findProperty("signingKeyId")
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
     sign publishing.publications.release
 }
