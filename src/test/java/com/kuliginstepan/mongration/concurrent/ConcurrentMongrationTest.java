@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContext;
@@ -205,14 +204,15 @@ class ConcurrentMongrationTest extends MongoIntegrationTest {
         }
 
         @Override
-        public void start(ApplicationReadyEvent event) {
+        public void afterSingletonsInstantiated() {
             NodeContext nodeContext = nodesMap.get(node);
             nodeContext.mongrationIsReadyToStart.countDown();
             await(nodeContext.shouldPerformMongration);
 
-            super.start(event);
+            super.afterSingletonsInstantiated();
             nodeContext.mongrationFinished.countDown();
         }
+
     }
 
     @Changelog
