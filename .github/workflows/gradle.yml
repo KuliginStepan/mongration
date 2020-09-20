@@ -22,4 +22,4 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
       - name: Codecov
-        uses: codecov/codecov-action@v1.0.6
+        uses: codecov/codecov-action@v1

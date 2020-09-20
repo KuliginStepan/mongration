@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -37,7 +37,7 @@ import reactor.util.retry.Retry;
  */
 @Slf4j
 @RequiredArgsConstructor
-public abstract class AbstractMongration {
+public abstract class AbstractMongration implements SmartInitializingSingleton {
 
     private final AbstractChangeSetService changesetService;
     private final IndexCreator indexCreator;
@@ -45,17 +45,15 @@ public abstract class AbstractMongration {
     private final MongrationProperties properties;
     protected final ApplicationContext context;
 
-    @EventListener
-    public void start(ApplicationReadyEvent event) {
-        if (context.equals(event.getApplicationContext())) {
-            log.info("mongration started");
-            findMigrationsForExecution()
-                .flatMap(tuple ->
-                    withLockAcquired(Mono.defer(() -> executeMigration(tuple)))
-                )
-                .block();
-            log.info("mongration finished its work");
-        }
+    @Override
+    public void afterSingletonsInstantiated() {
+        log.info("mongration started");
+        findMigrationsForExecution()
+            .flatMap(tuple ->
+                withLockAcquired(Mono.defer(() -> executeMigration(tuple)))
+            )
+            .block();
+        log.info("mongration finished its work");
     }
 
     protected Mono<Void> withLockAcquired(Mono<Void> action) {
