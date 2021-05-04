@@ -7,7 +7,6 @@ import static com.kuliginstepan.mongration.utils.ChangelogUtils.getChangelogClas
 import com.kuliginstepan.mongration.annotation.Changelog;
 import com.kuliginstepan.mongration.annotation.Changeset;
 import com.kuliginstepan.mongration.configuration.MongrationProperties;
-import com.kuliginstepan.mongration.entity.ChangesetEntity;
 import com.kuliginstepan.mongration.service.AbstractChangeSetService;
 import com.kuliginstepan.mongration.service.IndexCreator;
 import com.kuliginstepan.mongration.service.LockService;
@@ -15,6 +14,7 @@ import com.kuliginstepan.mongration.utils.ChangelogUtils;
 import java.lang.reflect.Method;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +24,8 @@ import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -129,7 +131,10 @@ public abstract class AbstractMongration implements SmartInitializingSingleton {
     }
 
     private Mono<Void> executeMigration(List<Tuple2<Object, List<Method>>> changelogs) {
-        return indexCreator.createIndexes(ChangesetEntity.class)
+        return indexCreator
+            .createIndexes(
+                Arrays.asList(new Index().on("changeset", Direction.ASC).on("changelog", Direction.ASC).unique()),
+                properties.getChangelogsCollection())
             .log("started executing migrations")
             .thenMany(Flux.fromIterable(changelogs))
             .concatMap(this::executeChangelogMigrations)

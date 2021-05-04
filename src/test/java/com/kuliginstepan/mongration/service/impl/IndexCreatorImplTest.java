@@ -63,16 +63,15 @@ class IndexCreatorImplTest extends MongoIntegrationTest {
 
     @Test
     void shouldCreateIndexForClass() {
-        indexCreator.createIndexes(ChangesetEntity.class).block();
-        Spliterator<Document> spliterator = template.getCollection("test_collection").listIndexes().spliterator();
+        indexCreator.createIndexes(TestDocument.class, "testDocument").block();
+        Spliterator<Document> spliterator = template.getCollection("testDocument").listIndexes().spliterator();
         List<Document> indexes = StreamSupport.stream(spliterator, false).collect(Collectors.toList());
         assertThat(indexes)
             .hasSize(2)
             .anySatisfy(index -> {
                 assertThat(index).hasEntrySatisfying("key", key -> {
                     assertThat((Document) key)
-                        .containsEntry("changeset", 1)
-                        .containsEntry("changelog", 1);
+                        .containsEntry("index", 1);
                 });
             });
     }
@@ -80,19 +79,8 @@ class IndexCreatorImplTest extends MongoIntegrationTest {
     @Test
     void shouldCreateIndex() {
         indexCreator.createIndexes().block();
-        Spliterator<Document> spliterator = template.getCollection("test_collection").listIndexes().spliterator();
+        Spliterator<Document> spliterator = template.getCollection("testDocument").listIndexes().spliterator();
         List<Document> indexes = StreamSupport.stream(spliterator, false).collect(Collectors.toList());
-        assertThat(indexes)
-            .hasSize(2)
-            .anySatisfy(index -> {
-                assertThat(index).hasEntrySatisfying("key", key -> {
-                    assertThat((Document) key)
-                        .containsEntry("changeset", 1)
-                        .containsEntry("changelog", 1);
-                });
-            });
-        spliterator = template.getCollection("testDocument").listIndexes().spliterator();
-        indexes = StreamSupport.stream(spliterator, false).collect(Collectors.toList());
         assertThat(indexes)
             .hasSize(2)
             .anySatisfy(index -> {

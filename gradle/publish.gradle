@@ -34,7 +34,9 @@ publishing {
     publications {
         snapshot(MavenPublication) {
             artifactId = project.name
-            version project.version + '-SNAPSHOT'
+            afterEvaluate {
+                version project.version + '-SNAPSHOT'
+            }
             from components.java
             versionMapping {
                 usage('java-api') {

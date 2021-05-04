@@ -53,7 +53,8 @@ class ReactiveChangesetServiceIntegrationTest extends MongoIntegrationTest {
     @Test
     void shouldSaveChangeSet() {
         service.saveChangeset(CHANGE_SET, CHANGE_LOG).block();
-        List<ChangesetEntity> entities = template.findAll(ChangesetEntity.class).collectList().block();
+        List<ChangesetEntity> entities = template.findAll(ChangesetEntity.class, "test_collection").collectList()
+            .block();
         assertThat(entities)
             .hasSize(1)
             .anySatisfy(entity -> {

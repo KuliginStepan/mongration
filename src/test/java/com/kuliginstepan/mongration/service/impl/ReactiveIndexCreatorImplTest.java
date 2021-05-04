@@ -60,12 +60,8 @@ class ReactiveIndexCreatorImplTest extends MongoIntegrationTest {
 
     @Test
     void shouldCreateIndexForClass() {
-        indexCreator.createIndexes(ChangesetEntity.class).block();
-        template.getCollection("test_collection")
-            .flatMapMany(MongoCollection::listIndexes)
-            .collectList()
-            .block();
-        List<Document> indexes = template.getCollection("test_collection")
+        indexCreator.createIndexes(TestDocument.class, "testDocument").block();
+        List<Document> indexes = template.getCollection("testDocument")
             .flatMapMany(MongoCollection::listIndexes)
             .collectList()
             .block();
@@ -74,8 +70,7 @@ class ReactiveIndexCreatorImplTest extends MongoIntegrationTest {
             .anySatisfy(index -> {
                 assertThat(index).hasEntrySatisfying("key", key -> {
                     assertThat((Document) key)
-                        .containsEntry("changeset", 1)
-                        .containsEntry("changelog", 1);
+                        .containsEntry("index", 1);
                 });
             });
     }
@@ -83,20 +78,7 @@ class ReactiveIndexCreatorImplTest extends MongoIntegrationTest {
     @Test
     void shouldCreateIndex() {
         indexCreator.createIndexes().block();
-        List<Document> indexes = template.getCollection("test_collection")
-            .flatMapMany(MongoCollection::listIndexes)
-            .collectList()
-            .block();
-        assertThat(indexes)
-            .hasSize(2)
-            .anySatisfy(index -> {
-                assertThat(index).hasEntrySatisfying("key", key -> {
-                    assertThat((Document) key)
-                        .containsEntry("changeset", 1)
-                        .containsEntry("changelog", 1);
-                });
-            });
-        indexes = template.getCollection("testDocument")
+        List<Document> indexes = template.getCollection("testDocument")
             .flatMapMany(MongoCollection::listIndexes)
             .collectList()
             .block();

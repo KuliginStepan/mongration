@@ -1,8 +1,10 @@
 package com.kuliginstepan.mongration.service.impl;
 
 import com.kuliginstepan.mongration.service.IndexCreator;
+import java.util.List;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.context.MappingContext;
+import org.springframework.data.mongodb.core.index.IndexDefinition;
 import org.springframework.data.mongodb.core.index.IndexResolver;
 import org.springframework.data.mongodb.core.index.ReactiveIndexOperationsProvider;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -28,8 +30,20 @@ public class ReactiveIndexCreatorImpl implements IndexCreator {
     @Override
     public Mono<Void> createIndexes(Class<?> type) {
         MongoPersistentEntity persistentEntity = mappingContext.getPersistentEntity(type);
+        return createIndexes(type, persistentEntity.getCollection());
+    }
+
+    @Override
+    public Mono<Void> createIndexes(Class<?> type, String collection) {
         return Flux.fromIterable(indexResolver.resolveIndexFor(type))
-            .flatMap(index -> indexOperationsProvider.indexOps(persistentEntity.getCollection()).ensureIndex(index))
+            .flatMap(index -> indexOperationsProvider.indexOps(collection).ensureIndex(index))
+            .then();
+    }
+
+    @Override
+    public Mono<Void> createIndexes(List<IndexDefinition> definitions, String collection) {
+        return Flux.fromIterable(definitions)
+            .flatMap(index -> indexOperationsProvider.indexOps(collection).ensureIndex(index))
             .then();
     }
 

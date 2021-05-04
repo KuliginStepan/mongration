@@ -52,7 +52,7 @@ class ChangesetServiceIntegrationTest extends MongoIntegrationTest {
     @Test
     void shouldSaveChangeSet() {
         service.saveChangeset(CHANGE_SET, CHANGE_LOG).block();
-        List<ChangesetEntity> entities = template.findAll(ChangesetEntity.class);
+        List<ChangesetEntity> entities = template.findAll(ChangesetEntity.class, "test_collection");
         assertThat(entities)
             .hasSize(1)
             .anySatisfy(entity -> {
