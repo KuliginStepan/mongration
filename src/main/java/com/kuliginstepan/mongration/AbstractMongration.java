@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -38,14 +37,27 @@ import reactor.util.retry.Retry;
  * Main component which executes {@link Changeset}. Execution starts when {@link ApplicationReadyEvent} is published
  */
 @Slf4j
-@RequiredArgsConstructor
 public abstract class AbstractMongration implements SmartInitializingSingleton {
 
     private final AbstractChangeSetService changesetService;
     private final IndexCreator indexCreator;
     private final LockService lockService;
     private final MongrationProperties properties;
+    private MethodParametersResolver parametersResolver;
     protected final ApplicationContext context;
+
+    protected AbstractMongration(AbstractChangeSetService changesetService,
+                                 IndexCreator indexCreator,
+                                 LockService lockService,
+                                 MongrationProperties properties,
+                                 ApplicationContext context) {
+        this.changesetService = changesetService;
+        this.indexCreator = indexCreator;
+        this.lockService = lockService;
+        this.properties = properties;
+        this.context = context;
+        this.parametersResolver = new DefaultMethodParametersResolver(context);
+    }
 
     @Override
     public void afterSingletonsInstantiated() {
@@ -84,7 +96,8 @@ public abstract class AbstractMongration implements SmartInitializingSingleton {
             );
     }
 
-    protected abstract Mono<Object> executeChangeSetMethod(Object changelog, Method changesetMethod);
+    protected abstract Mono<Object> executeChangeSetMethod(Method changesetMethod, Object changelog,
+                                                           Object[] parameters);
 
     protected List<String> doValidateChangelog(Class<?> changelogClass) {
         List<Method> changesetMethods = findChangeSetMethods(changelogClass);
@@ -151,7 +164,8 @@ public abstract class AbstractMongration implements SmartInitializingSingleton {
 
     private Mono<Void> executeMigration(Object changelog, Method changesetMethod) {
         return changesetService.validateChangesetMethodSignature(changesetMethod)
-            .then(Mono.defer(() -> executeChangeSetMethod(changelog, changesetMethod)))
+            .then(Mono.defer(
+                () -> executeChangeSetMethod(changesetMethod, changelog, parametersResolver.resolve(changesetMethod))))
             .then(Mono.defer(() -> changesetService.saveChangeset(changesetMethod, changelog)))
             .onErrorMap(t -> new MongrationException("Could't execute changeset: " + changesetMethod.getName(), t));
     }
