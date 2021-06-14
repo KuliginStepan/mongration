@@ -5,7 +5,6 @@ import com.kuliginstepan.mongration.service.impl.ReactiveChangeSetService;
 import com.kuliginstepan.mongration.service.impl.ReactiveIndexCreatorImpl;
 import com.kuliginstepan.mongration.service.impl.ReactiveLockServiceImpl;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.util.ReflectionUtils;
@@ -24,11 +23,7 @@ public class ReactiveMongration extends AbstractMongration {
     }
 
     @Override
-    protected Mono<Object> executeChangeSetMethod(Object changelog, Method changesetMethod) {
-        Object[] parameterBeans = Arrays.stream(changesetMethod.getParameterTypes())
-            .map(context::getBean)
-            .toArray();
-
-        return (Mono<Object>) ReflectionUtils.invokeMethod(changesetMethod, changelog, parameterBeans);
+    protected Mono<Object> executeChangeSetMethod(Method changesetMethod, Object changelog, Object[] parameters) {
+        return (Mono<Object>) ReflectionUtils.invokeMethod(changesetMethod, changelog, parameters);
     }
 }

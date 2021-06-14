@@ -5,7 +5,6 @@ import com.kuliginstepan.mongration.service.impl.ChangeSetService;
 import com.kuliginstepan.mongration.service.impl.IndexCreatorImpl;
 import com.kuliginstepan.mongration.service.impl.LockServiceImpl;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.util.ReflectionUtils;
@@ -25,13 +24,9 @@ public class Mongration extends AbstractMongration {
     }
 
     @Override
-    protected Mono<Object> executeChangeSetMethod(Object changelog, Method changesetMethod) {
-        Object[] parameterBeans = Arrays.stream(changesetMethod.getParameterTypes())
-            .map(context::getBean)
-            .toArray();
-
+    protected Mono<Object> executeChangeSetMethod(Method changesetMethod, Object changelog, Object[] parameters) {
         try {
-            return Mono.justOrEmpty(ReflectionUtils.invokeMethod(changesetMethod, changelog, parameterBeans));
+            return Mono.justOrEmpty(ReflectionUtils.invokeMethod(changesetMethod, changelog, parameters));
         } catch (Exception e) {
             return Mono.error(e);
         }

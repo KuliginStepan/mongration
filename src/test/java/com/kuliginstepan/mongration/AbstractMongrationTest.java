@@ -100,7 +100,7 @@ class AbstractMongrationTest {
         }
 
         @Override
-        protected Mono<Object> executeChangeSetMethod(Object changelog, Method changesetMethod) {
+        protected Mono<Object> executeChangeSetMethod(Method changesetMethod, Object changelog, Object[] parameters) {
             return null;
         }
     }
