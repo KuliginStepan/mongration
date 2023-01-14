@@ -119,7 +119,7 @@ class ConcurrentMongrationTest extends MongoIntegrationTest {
             // verify only node 1 changeset is executed
             assertThat(template.findAll(TestAppInfo.class).collectList().block())
                 .hasSize(1)
-                .containsOnlyElementsOf(List.of(new TestAppInfo(APP_NAME, "node-1", 1)));
+                .hasSameElementsAs(List.of(new TestAppInfo(APP_NAME, "node-1", 1)));
         } catch (IllegalStateException e) {
             if (e.getMessage().startsWith("Latch should")) {
                 nodesMap.forEach((node, ctx) -> {
@@ -153,8 +153,8 @@ class ConcurrentMongrationTest extends MongoIntegrationTest {
                 )
                 .profiles(node)
                 .run()
-        )
-            .subscribeOn(Schedulers.elastic())
+            )
+            .subscribeOn(Schedulers.boundedElastic())
             .map(context -> {
                 log.info("App node `{}` finished successfully.", node);
                 return Optional.of(context);

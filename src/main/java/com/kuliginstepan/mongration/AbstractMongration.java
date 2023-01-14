@@ -14,7 +14,6 @@ import com.kuliginstepan.mongration.utils.ChangelogUtils;
 import java.lang.reflect.Method;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -90,7 +89,7 @@ public abstract class AbstractMongration implements SmartInitializingSingleton {
         return Mono.defer(lockService::acquireLock)
             .retryWhen(
                 Retry.fixedDelay(properties.getRetryCount(), properties.getRetryDelay())
-                    .filter(e -> e instanceof MongrationException)
+                    .filter(MongrationException.class::isInstance)
                     .doBeforeRetry(
                         retry -> log.warn("mongration retried {} time at {}", retry.totalRetries(), LocalTime.now()))
             );
@@ -146,7 +145,7 @@ public abstract class AbstractMongration implements SmartInitializingSingleton {
     private Mono<Void> executeMigration(List<Tuple2<Object, List<Method>>> changelogs) {
         return indexCreator
             .createIndexes(
-                Arrays.asList(new Index().on("changeset", Direction.ASC).on("changelog", Direction.ASC).unique()),
+                List.of(new Index().on("changeset", Direction.ASC).on("changelog", Direction.ASC).unique()),
                 properties.getChangelogsCollection())
             .log("started executing migrations")
             .thenMany(Flux.fromIterable(changelogs))

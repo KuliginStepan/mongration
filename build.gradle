@@ -10,23 +10,23 @@ apply plugin: 'jacoco'
 apply from: "./gradle/publish.gradle"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
     withSourcesJar()
     withJavadocJar()
 }
 
 group = 'com.github.kuliginstepan'
-version = '1.4.0'
+version = '2.0.0'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    api platform('org.springframework.boot:spring-boot-dependencies:2.3.0.RELEASE')
-    annotationProcessor platform('org.springframework.boot:spring-boot-dependencies:2.3.0.RELEASE')
-    testAnnotationProcessor platform('org.springframework.boot:spring-boot-starter-parent:2.3.0.RELEASE')
+    api platform('org.springframework.boot:spring-boot-dependencies:3.0.1')
+    annotationProcessor platform('org.springframework.boot:spring-boot-dependencies:3.0.1')
+    testAnnotationProcessor platform('org.springframework.boot:spring-boot-starter-parent:3.0.1')
 
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     api 'io.projectreactor:reactor-core'
@@ -44,8 +44,8 @@ dependencies {
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
-    testImplementation 'org.testcontainers:junit-jupiter:1.15.3'
-    testImplementation 'org.testcontainers:mongodb:1.15.3'
+    testImplementation 'org.testcontainers:junit-jupiter:1.17.6'
+    testImplementation 'org.testcontainers:mongodb:1.17.6'
     testImplementation 'org.springframework.data:spring-data-mongodb'
     testImplementation 'org.springframework.boot:spring-boot-starter-webflux'
     testImplementation 'org.mongodb:mongodb-driver-reactivestreams'
