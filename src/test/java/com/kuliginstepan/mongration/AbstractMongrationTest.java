@@ -43,11 +43,11 @@ class AbstractMongrationTest {
 
         // when
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
-            mongration.withLockAcquired(Mono.error(new RuntimeException(actionErrorMessage))).subscribe()
+            mongration.withLockAcquired(Mono.error(new RuntimeException(actionErrorMessage))).block()
         );
 
         // then
-        Assertions.assertThat(exception.getCause())
+        Assertions.assertThat(exception)
             .hasMessage(actionErrorMessage)
             .hasSuppressedException(releaseLockException);
     }
@@ -64,7 +64,7 @@ class AbstractMongrationTest {
         ).when(lockService).acquireLock();
 
         // when
-        mongration.acquireLock().subscribe();
+        mongration.acquireLock().block();
 
         // then no exception thrown
     }
@@ -83,11 +83,11 @@ class AbstractMongrationTest {
 
         // when
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
-            mongration.acquireLock().subscribe()
+            mongration.acquireLock().block()
         );
 
         // then
-        Assertions.assertThat(exception.getCause())
+        Assertions.assertThat(exception)
             .hasMessage(errorMessage);
     }
 

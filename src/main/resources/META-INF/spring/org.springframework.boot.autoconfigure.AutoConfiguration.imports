@@ -1,0 +1,2 @@
+com.kuliginstepan.mongration.configuration.MongrationAutoConfiguration
+com.kuliginstepan.mongration.actuator.MongrationActuatorAutoConfiguration

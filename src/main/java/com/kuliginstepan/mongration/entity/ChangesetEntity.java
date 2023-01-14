@@ -4,12 +4,10 @@ import java.time.Instant;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 
 @Data
-//@Document
-//@Document(collection = "#{@mongrationProperties.getChangelogsCollection()}")
 @CompoundIndex(def = "{'changeset': 1, 'changelog': 1}", unique = true)
 public class ChangesetEntity {
 
@@ -31,7 +29,7 @@ public class ChangesetEntity {
         createdAt = Instant.now();
     }
 
-    @PersistenceConstructor
+    @PersistenceCreator
     public ChangesetEntity(String id, String changeset, String author, Instant createdAt, String changelog) {
         this.id = id;
         this.changeset = changeset;
