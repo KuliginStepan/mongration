@@ -42,7 +42,7 @@ public abstract class AbstractMongration implements SmartInitializingSingleton {
     private final IndexCreator indexCreator;
     private final LockService lockService;
     private final MongrationProperties properties;
-    private MethodParametersResolver parametersResolver;
+    private final MethodParametersResolver parametersResolver;
     protected final ApplicationContext context;
 
     protected AbstractMongration(AbstractChangeSetService changesetService,
@@ -147,7 +147,7 @@ public abstract class AbstractMongration implements SmartInitializingSingleton {
             .createIndexes(
                 List.of(new Index().on("changeset", Direction.ASC).on("changelog", Direction.ASC).unique()),
                 properties.getChangelogsCollection())
-            .log("started executing migrations")
+            .doOnNext(it -> log.info("started executing migrations"))
             .thenMany(Flux.fromIterable(changelogs))
             .concatMap(this::executeChangelogMigrations)
             .then(indexCreator.createIndexes());

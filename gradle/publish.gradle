@@ -1,9 +1,13 @@
 def nexusUsername = System.getenv("NEXUS_USERNAME") ?: (project.findProperty("NEXUS_USERNAME") ?: "")
 def nexusPassword = System.getenv("NEXUS_PASSWORD") ?: (project.findProperty("NEXUS_PASSWORD") ?: "")
 
-nexusStaging {
-    username = nexusUsername
-    password = nexusPassword
+nexusPublishing {
+    repositories {
+        sonatype {
+            username = nexusUsername
+            password = nexusPassword
+        }
+    }
 }
 
 def pomDefinition = {
@@ -60,24 +64,6 @@ publishing {
                 }
             }
             pom(pomDefinition)
-        }
-    }
-    repositories {
-        maven {
-            name = 'snapshot'
-            url 'https://oss.sonatype.org/content/repositories/snapshots'
-            credentials {
-                username = nexusUsername
-                password = nexusPassword
-            }
-        }
-        maven {
-            name = 'staging'
-            url 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
-            credentials {
-                username = nexusUsername
-                password = nexusPassword
-            }
         }
     }
 }

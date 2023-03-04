@@ -24,6 +24,4 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Publish Release Publication
-        run: ./gradlew publishReleasePublicationToStagingRepository
-      - name: Close and Release
-        run: ./gradlew closeAndReleaseRepository
+        run: ./gradlew publishReleasePublicationToStagingRepository closeAndReleaseRepository

@@ -1,6 +1,6 @@
 plugins {
     id 'maven-publish'
-    id 'io.codearte.nexus-staging' version '0.21.2'
+    id 'io.github.gradle-nexus.publish-plugin' version '1.2.0'
     id 'java-library'
     id 'signing'
     id 'jacoco'
@@ -17,16 +17,16 @@ java {
 }
 
 group = 'com.github.kuliginstepan'
-version = '2.0.0'
+version = '2.0.1'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    api platform('org.springframework.boot:spring-boot-dependencies:3.0.1')
-    annotationProcessor platform('org.springframework.boot:spring-boot-dependencies:3.0.1')
-    testAnnotationProcessor platform('org.springframework.boot:spring-boot-starter-parent:3.0.1')
+    api platform('org.springframework.boot:spring-boot-dependencies:3.0.4')
+    annotationProcessor platform('org.springframework.boot:spring-boot-dependencies:3.0.4')
+    testAnnotationProcessor platform('org.springframework.boot:spring-boot-starter-parent:3.0.4')
 
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     api 'io.projectreactor:reactor-core'
@@ -41,9 +41,7 @@ dependencies {
 
     testAnnotationProcessor 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok'
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-    }
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.testcontainers:junit-jupiter:1.17.6'
     testImplementation 'org.testcontainers:mongodb:1.17.6'
     testImplementation 'org.springframework.data:spring-data-mongodb'
@@ -59,8 +57,8 @@ test {
 
 jacocoTestReport {
     reports {
-        xml.enabled true
-        html.enabled false
+        xml.required = true
+        html.required = false
     }
 }
 
