@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.boot.data.mongodb.test.autoconfigure.DataMongoTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -138,8 +138,10 @@ class ConcurrentMongrationTest extends MongoIntegrationTest {
 
     private Mono<Optional<ConfigurableApplicationContext>> runNode(String node) {
         log.info("Starting app node: {}", node);
+        // Spring Boot's TestTypeExcludeFilter now applies to every SpringApplication started from a test
+        // classpath and filters out components nested in test classes, so they are registered explicitly
         return Mono.fromCallable(() ->
-            new SpringApplicationBuilder(HighlyScaledApp.class)
+            new SpringApplicationBuilder(HighlyScaledApp.class, SpyingReactiveMongration.class, TestChangeLog.class)
                 .initializers(new Initializer())
                 .properties(
                     "mongration.mode=reactive",

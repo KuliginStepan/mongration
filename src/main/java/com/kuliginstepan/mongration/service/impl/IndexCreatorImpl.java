@@ -35,14 +35,14 @@ public class IndexCreatorImpl implements IndexCreator {
     @Override
     public Mono<Void> createIndexes(Class<?> type, String collection) {
         return Flux.fromIterable(indexResolver.resolveIndexFor(type))
-            .map(index -> indexOperationsProvider.indexOps(collection).ensureIndex(index))
+            .map(index -> indexOperationsProvider.indexOps(collection).createIndex(index))
             .then();
     }
 
     @Override
     public Mono<Void> createIndexes(List<IndexDefinition> definitions, String collection) {
         return Flux.fromIterable(definitions)
-            .map(index -> indexOperationsProvider.indexOps(collection).ensureIndex(index))
+            .map(index -> indexOperationsProvider.indexOps(collection).createIndex(index))
             .then();
     }
 
