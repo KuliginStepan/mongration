@@ -17,8 +17,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.data.mongodb.test.autoconfigure.DataMongoTest;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -30,7 +30,7 @@ class LockServiceTest extends MongoIntegrationTest {
 
     private static final String COLLECTION_NAME = "test_collection";
 
-    @SpyBean
+    @MockitoSpyBean
     private MongoTemplate template;
     private LockService service;
 

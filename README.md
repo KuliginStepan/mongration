@@ -13,6 +13,14 @@ MongoDB data migration tool for Spring Boot projects
 *   Support MongoDB transactions
 *   Support ReactiveMongoTemplate
 
+## Compatibility
+
+| Mongration | Spring Boot |
+|------------|-------------|
+| 3.x        | 4.x         |
+| 2.x        | 3.x         |
+| 1.x        | 2.x         |
+
 ## Getting started
 ### Add a dependency
 #### Maven

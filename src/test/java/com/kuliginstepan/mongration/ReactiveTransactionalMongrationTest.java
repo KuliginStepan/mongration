@@ -14,12 +14,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoReactiveAutoConfiguration;
-import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.reactive.HttpHandlerAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.reactive.ReactiveWebServerFactoryAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration;
+import org.springframework.boot.data.mongodb.autoconfigure.DataMongoReactiveAutoConfiguration;
+import org.springframework.boot.mongodb.autoconfigure.MongoReactiveAutoConfiguration;
+import org.springframework.boot.transaction.autoconfigure.TransactionAutoConfiguration;
+import org.springframework.boot.webflux.autoconfigure.HttpHandlerAutoConfiguration;
+import org.springframework.boot.reactor.netty.autoconfigure.NettyReactiveWebServerAutoConfiguration;
+import org.springframework.boot.webflux.autoconfigure.WebFluxAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
@@ -35,10 +35,10 @@ import reactor.core.publisher.Mono;
 @ImportAutoConfiguration({
     TransactionAutoConfiguration.class,
     MongoReactiveAutoConfiguration.class,
-    MongoReactiveDataAutoConfiguration.class,
+    DataMongoReactiveAutoConfiguration.class,
     PropertyPlaceholderAutoConfiguration.class,
     MongrationAutoConfiguration.class,
-    ReactiveWebServerFactoryAutoConfiguration.class,
+    NettyReactiveWebServerAutoConfiguration.class,
     HttpHandlerAutoConfiguration.class,
     WebFluxAutoConfiguration.class
 })
@@ -62,7 +62,7 @@ class ReactiveTransactionalMongrationTest extends MongoIntegrationTest {
         new ApplicationContextRunner()
             .withInitializer(new Initializer())
             .withConfiguration(
-                AutoConfigurations.of(MongoReactiveAutoConfiguration.class, MongoReactiveDataAutoConfiguration.class))
+                AutoConfigurations.of(MongoReactiveAutoConfiguration.class, DataMongoReactiveAutoConfiguration.class))
             .run(context -> {
                 ReactiveMongoTemplate template = context.getBean(ReactiveMongoTemplate.class);
                 assertThat(template.findAll(Document.class, "test").collectList().block().size()).isEqualTo(0);
@@ -76,7 +76,7 @@ class ReactiveTransactionalMongrationTest extends MongoIntegrationTest {
         new ApplicationContextRunner()
             .withInitializer(new Initializer())
             .withConfiguration(
-                AutoConfigurations.of(MongoReactiveAutoConfiguration.class, MongoReactiveDataAutoConfiguration.class))
+                AutoConfigurations.of(MongoReactiveAutoConfiguration.class, DataMongoReactiveAutoConfiguration.class))
             .run(context -> {
                 ReactiveMongoTemplate template = context.getBean(ReactiveMongoTemplate.class);
                 template.dropCollection("test").block();

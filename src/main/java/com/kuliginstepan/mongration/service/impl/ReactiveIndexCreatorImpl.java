@@ -36,14 +36,14 @@ public class ReactiveIndexCreatorImpl implements IndexCreator {
     @Override
     public Mono<Void> createIndexes(Class<?> type, String collection) {
         return Flux.fromIterable(indexResolver.resolveIndexFor(type))
-            .flatMap(index -> indexOperationsProvider.indexOps(collection).ensureIndex(index))
+            .flatMap(index -> indexOperationsProvider.indexOps(collection).createIndex(index))
             .then();
     }
 
     @Override
     public Mono<Void> createIndexes(List<IndexDefinition> definitions, String collection) {
         return Flux.fromIterable(definitions)
-            .flatMap(index -> indexOperationsProvider.indexOps(collection).ensureIndex(index))
+            .flatMap(index -> indexOperationsProvider.indexOps(collection).createIndex(index))
             .then();
     }
 

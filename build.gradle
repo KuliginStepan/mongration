@@ -17,21 +17,22 @@ java {
 }
 
 group = 'com.github.kuliginstepan'
-version = '2.0.1'
+version = '3.0.0'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    api platform('org.springframework.boot:spring-boot-dependencies:3.0.4')
-    annotationProcessor platform('org.springframework.boot:spring-boot-dependencies:3.0.4')
-    testAnnotationProcessor platform('org.springframework.boot:spring-boot-starter-parent:3.0.4')
+    api platform('org.springframework.boot:spring-boot-dependencies:4.1.0')
+    annotationProcessor platform('org.springframework.boot:spring-boot-dependencies:4.1.0')
+    testAnnotationProcessor platform('org.springframework.boot:spring-boot-dependencies:4.1.0')
 
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     api 'io.projectreactor:reactor-core'
 
     compileOnly 'org.springframework.data:spring-data-mongodb'
+    compileOnly 'org.springframework.boot:spring-boot-data-mongodb'
     compileOnly 'org.springframework.boot:spring-boot-actuator-autoconfigure'
     compileOnly 'org.mongodb:mongodb-driver-reactivestreams'
     compileOnly 'org.projectlombok:lombok'
@@ -41,14 +42,20 @@ dependencies {
 
     testAnnotationProcessor 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.testcontainers:junit-jupiter:1.17.6'
-    testImplementation 'org.testcontainers:mongodb:1.17.6'
-    testImplementation 'org.springframework.data:spring-data-mongodb'
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-mongodb-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-webflux'
+    testImplementation 'org.springframework.boot:spring-boot-transaction'
+    testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
+    testImplementation 'org.testcontainers:testcontainers-mongodb'
     testImplementation 'org.mongodb:mongodb-driver-reactivestreams'
     testImplementation 'org.mongodb:mongodb-driver-sync'
     testImplementation 'io.projectreactor:reactor-core'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.add('-parameters')
 }
 
 test {
